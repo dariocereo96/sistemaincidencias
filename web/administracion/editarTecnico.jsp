@@ -12,6 +12,7 @@
     if (request.getSession().getAttribute("usuario") == null) {
         System.out.println("No hay sesion iniciada");
         response.sendRedirect(request.getContextPath() + "/auth/");
+        return;
     } else {
         TecnicoDAO tecnicoDAO = new TecnicoDAO(Conexion.getConexion());
         usuario = (Usuario) request.getSession().getAttribute("usuario");

@@ -32,6 +32,8 @@ public class Ticket {
     private String direccionEmpresa;
     private String telefonoEmpresa;
     private String emailEmpresa;
+    private String valoracion;
+    private String comentarioUsuario;
 
     public Ticket() {
 
@@ -57,7 +59,9 @@ public class Ticket {
             String comentario,
             String direccionEmpresa,
             String telefonoEmpresa,
-            String emailEmpresa
+            String emailEmpresa,
+            String valoracion,
+            String comentarioUsuario
     ) {
         this.id = id;
         this.titulo = titulo;
@@ -80,6 +84,8 @@ public class Ticket {
         this.direccionEmpresa = direccionEmpresa;
         this.telefonoEmpresa = telefonoEmpresa;
         this.emailEmpresa = emailEmpresa;
+        this.valoracion = valoracion;
+        this.comentarioUsuario = comentarioUsuario;
     }
 
     public int getId() {
@@ -248,6 +254,22 @@ public class Ticket {
 
     public void setEmailEmpresa(String emailEmpresa) {
         this.emailEmpresa = emailEmpresa;
+    }
+
+    public String getValoracion() {
+        return valoracion;
+    }
+
+    public void setValoracion(String valoracion) {
+        this.valoracion = valoracion;
+    }
+
+    public String getComentarioUsuario() {
+        return comentarioUsuario;
+    }
+
+    public void setComentarioUsuario(String comentarioUsuario) {
+        this.comentarioUsuario = comentarioUsuario;
     }
 
 }

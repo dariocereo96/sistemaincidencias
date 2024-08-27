@@ -1,3 +1,8 @@
+<%@page import="java.time.LocalDate"%>
+<%@page import="java.time.LocalDateTime"%>
+<%@page import="java.time.format.DateTimeFormatter"%>
+<%@page import="java.util.Date"%>
+<%@page import="java.text.SimpleDateFormat"%>
 <%@page import="Models.TipoTicketDAO"%>
 <%@page import="Models.TipoTicket"%>
 <%@page import="java.sql.Array"%>
@@ -16,9 +21,16 @@
     List<Usuario> usuariosTecnicos = new ArrayList<Usuario>();
     List<TipoTicket> tiposTickets = new ArrayList<TipoTicket>();
 
+    // Crear un formato de fecha
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+    // Obtener la fecha actual
+    String today = sdf.format(new Date());
+
     if (request.getSession().getAttribute("usuario") == null) {
         System.out.println("No hay sesion iniciada");
         response.sendRedirect(request.getContextPath() + "/auth/");
+        return;
     } else {
         usuario = (Usuario) request.getSession().getAttribute("usuario");
         TicketDAO ticketDAO = new TicketDAO(Conexion.getConexion());
@@ -47,6 +59,31 @@
             String prioridad = request.getParameter("prioridad");
 
             tickets = ticketDAO.obtenerTodosTicketsPendientesByPrioridad(prioridad);
+
+        } else if (request.getParameter("fechaInicio") != null && request.getParameter("fechaFinal") != null) {
+            // Formato de la fecha y hora en el string
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+            // Fechas ingresadas por el usuario (convertidas a LocalDate)
+            LocalDate fechaInicio = LocalDate.parse(request.getParameter("fechaInicio"), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            LocalDate fechaFinal = LocalDate.parse(request.getParameter("fechaFinal"), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+            // Obtener la lista de tickets
+            List<Ticket> lista = ticketDAO.obtenerTodosTicketsPendientes();
+
+            // Filtrar la lista usando un bucle for
+            for (Ticket ticket : lista) {
+                // Parsear la cadena de fecha y hora a LocalDateTime usando el formato completo
+                LocalDateTime fechaRegistro = LocalDateTime.parse(ticket.getFechaCreacion(), formatter);
+
+                // Extraer la fecha (sin hora) para la comparación
+                LocalDate fechaRegistroSoloFecha = fechaRegistro.toLocalDate();
+
+                // Verificar si la fecha del ticket está dentro del rango
+                if (!fechaRegistroSoloFecha.isBefore(fechaInicio) && !fechaRegistroSoloFecha.isAfter(fechaFinal)) {
+                    tickets.add(ticket);
+                }
+            }
 
         } else {
             tickets = ticketDAO.obtenerTodosTicketsPendientes();
@@ -289,6 +326,22 @@
                                                 </select>
                                                 <button class="btn btn-warning" style="color: #000;font-weight: bold">Buscar</button>
                                             </div>
+                                        </form>            
+                                    </div>
+
+                                    <div>
+                                        <form style="display: flex;margin-bottom: 20px">
+                                            <div style="display: flex; margin-right: 10px">
+                                                <label style="margin-right: 10px; margin-top: 6px">INICIO</label>
+                                                <input type="date" max="<%= today%>" required="" class="form-control" name="fechaInicio" value="<%= today%>"/>
+                                            </div>
+
+                                            <div style="display: flex; margin-right: 10px">
+                                                <label style="margin-right: 10px; margin-top: 6px">FINAL</label>
+                                                <input type="date" max="<%= today%>" required="" class="form-control" name="fechaFinal" value="<%= today%>"/>
+                                            </div>
+
+                                            <button class="btn btn-warning" style="color: #000; font-weight: bold">Buscar</button>
                                         </form>
                                     </div>
 
@@ -488,50 +541,50 @@
         <script src="${pageContext.request.contextPath}/assets/js/custom-scripts.js"></script>
 
         <script>
-                                function openModal(titulo, descripcion, idTicket, fecha, empresa, lugar, resposable, tipo, direccion, telefono) {
+            function openModal(titulo, descripcion, idTicket, fecha, empresa, lugar, resposable, tipo, direccion, telefono) {
 
-                                    // Abrir el modal
-                                    $('#titulo').val(titulo);
-                                    $('#fecha').val(fecha);
-                                    $('#empresa').val(empresa);
-                                    $('#lugar').val(lugar);
-                                    $('#responsable').val(resposable);
-                                    $('#tipoIncidencia').val(tipo);
-                                    $('#descripcion').val(descripcion);
-                                    $('#idTicket').val(idTicket);
-                                    $('#direccion').val(direccion);
-                                    $('#telefono').val(telefono);
-                                    $('#myModalLabel').text('Detalles del Ticket #' + idTicket);
-                                    $('#myModal').modal('show');
-                                }
+                // Abrir el modal
+                $('#titulo').val(titulo);
+                $('#fecha').val(fecha);
+                $('#empresa').val(empresa);
+                $('#lugar').val(lugar);
+                $('#responsable').val(resposable);
+                $('#tipoIncidencia').val(tipo);
+                $('#descripcion').val(descripcion);
+                $('#idTicket').val(idTicket);
+                $('#direccion').val(direccion);
+                $('#telefono').val(telefono);
+                $('#myModalLabel').text('Detalles del Ticket #' + idTicket);
+                $('#myModal').modal('show');
+            }
 
-                                function openModal2(titulo, razon, idTicket) {
-                                    $('#idTicket').val(idTicket);
-                                    $('#titulo2').val(titulo);
-                                    $('#empresa2').val(razon);
-                                    $('#myModalLabel2').text('Asignar Ticket #' + idTicket);
-                                    $('#myModal2').modal('show');
-                                }
+            function openModal2(titulo, razon, idTicket) {
+                $('#idTicket').val(idTicket);
+                $('#titulo2').val(titulo);
+                $('#empresa2').val(razon);
+                $('#myModalLabel2').text('Asignar Ticket #' + idTicket);
+                $('#myModal2').modal('show');
+            }
 
-                                function guardar() {
-                                    document.getElementById('formulario').submit();
-                                }
+            function guardar() {
+                document.getElementById('formulario').submit();
+            }
 
-                                function validarNumeros(event) {
-                                    const input = event.target;
-                                    const value = input.value;
+            function validarNumeros(event) {
+                const input = event.target;
+                const value = input.value;
 
-                                    // Expresión regular para remover cualquier carácter que no sea un número
-                                    input.value = value.replace(/\D/g, '');
+                // Expresión regular para remover cualquier carácter que no sea un número
+                input.value = value.replace(/\D/g, '');
 
-                                    // Opcional: Mostrar mensaje de error si se desea informar al usuario
-                                    const errorMessage = document.getElementById('error-message');
-                                    if (input.value !== value) {
-                                        errorMessage.textContent = 'El campo solo debe contener números.';
-                                    } else {
-                                        errorMessage.textContent = '';
-                                    }
-                                }
+                // Opcional: Mostrar mensaje de error si se desea informar al usuario
+                const errorMessage = document.getElementById('error-message');
+                if (input.value !== value) {
+                    errorMessage.textContent = 'El campo solo debe contener números.';
+                } else {
+                    errorMessage.textContent = '';
+                }
+            }
 
         </script>
     </body>

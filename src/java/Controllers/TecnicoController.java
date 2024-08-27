@@ -1,7 +1,6 @@
 package Controllers;
 
 import Configurations.Conexion;
-import Models.EmpresaDAO;
 import Models.Tecnico;
 import Models.TecnicoDAO;
 import Models.UsuarioDAO;
@@ -42,6 +41,10 @@ public class TecnicoController extends HttpServlet {
         switch (action) {
             case "eliminar":
                 eliminar(request, response);
+                break;
+                
+            case "cambiarEstado":
+                cambiarEstado(request, response);
                 break;
 
             default:
@@ -228,4 +231,29 @@ public class TecnicoController extends HttpServlet {
         }
     }
 
+     private void cambiarEstado(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            conexion = Conexion.getConexion();
+            tecnicoDAO = new TecnicoDAO(conexion);
+            
+            int idTecnico = Integer.parseInt(request.getParameter("id"));
+            int estado = Integer.parseInt(request.getParameter("valor"));
+            
+            tecnicoDAO.cambiarEstadoTecnico(idTecnico, estado);
+            
+            tecnico = tecnicoDAO.obtenerTecnico(idTecnico);
+            
+            if(tecnico.getUsuarioId()>0){
+                new UsuarioDAO(conexion).cambiarEstadoUsuario(tecnico.getUsuarioId(), estado);
+            }
+            
+            HttpSession session = request.getSession();
+            session.setAttribute("mensajeAlerta", "Estado cambiado del tecnico.");
+            response.sendRedirect(listarTecnicos);
+            
+        } catch (ClassNotFoundException | SQLException ex) {
+            request.setAttribute("mensaje", "Ocurrio un problema: " + ex.getMessage());
+            request.getRequestDispatcher(error).forward(request, response);
+        }
+    }
 }

@@ -29,6 +29,7 @@ public class EmpresaController extends HttpServlet {
     String cliente = "usuario/";
     Empresa empresa;
     EmpresaDAO empresaDAO;
+    UsuarioDAO usuarioDAO;
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -45,6 +46,11 @@ public class EmpresaController extends HttpServlet {
             case "eliminar":
                 eliminar(request, response);
                 break;
+
+            case "cambiarEstado":
+                cambiarEstado(request, response);
+                break;
+
             default:
                 request.setAttribute("mensaje", "Accion invalida");
                 request.getRequestDispatcher(error).forward(request, response);
@@ -217,7 +223,7 @@ public class EmpresaController extends HttpServlet {
             conexion = Conexion.getConexion();
             empresaDAO = new EmpresaDAO(conexion);
             UsuarioDAO usuarioDAO = new UsuarioDAO(conexion);
-            
+
             empresa = empresaDAO.obtenerEmpresaId(idEmpresa);
 
             empresaDAO.eliminarEmpresa(idEmpresa);
@@ -300,6 +306,33 @@ public class EmpresaController extends HttpServlet {
             request.setAttribute("mensaje", "Ocurrio un problema: " + ex.getMessage());
             request.getRequestDispatcher(error).forward(request, response);
         }
+    }
 
+    private void cambiarEstado(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            conexion = Conexion.getConexion();
+            empresaDAO = new EmpresaDAO(conexion);
+
+            int idEmpresa = Integer.parseInt(request.getParameter("id"));
+            int estado = Integer.parseInt(request.getParameter("valor"));
+
+            empresaDAO.cambiarEstadoEmpresa(idEmpresa, estado);
+            
+            empresa = empresaDAO.obtenerEmpresaId(idEmpresa);
+            
+            if(empresa.getUsuarioId()>0){
+                usuarioDAO = new UsuarioDAO(conexion);
+                usuarioDAO.cambiarEstadoUsuario(empresa.getUsuarioId(), estado);
+            }
+
+            HttpSession session = request.getSession();
+
+            session.setAttribute("mensajeAlerta", "Estado cambiado de la empresa.");
+            response.sendRedirect(listarEmpresa);
+
+        } catch (ClassNotFoundException | SQLException ex) {
+            request.setAttribute("mensaje", "Ocurrio un problema: " + ex.getMessage());
+            request.getRequestDispatcher(error).forward(request, response);
+        }
     }
 }

@@ -67,13 +67,36 @@ public class TecnicoDAO {
                         resultSet.getString("correo"),
                         resultSet.getString("telefono"),
                         resultSet.getString("direccion"),
-                        resultSet.getInt("usuario_id")
+                        resultSet.getInt("usuario_id"),
+                        resultSet.getInt("estado")
                 );
             }
         }
         return null;
     }
-
+    
+     public Tecnico obtenerTecnicoIdUsuario(int id) throws SQLException {
+        String query = "SELECT * FROM tecnicos WHERE usuario_id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return new Tecnico(
+                        resultSet.getInt("id"),
+                        resultSet.getString("cedula"),
+                        resultSet.getString("nombre"),
+                        resultSet.getString("apellido"),
+                        resultSet.getString("correo"),
+                        resultSet.getString("telefono"),
+                        resultSet.getString("direccion"),
+                        resultSet.getInt("usuario_id"),
+                        resultSet.getInt("estado")
+                );
+            }
+        }
+        return null;
+    }
+    
     public List<Tecnico> obtenerTecnicos() throws SQLException {
         List<Tecnico> tecnicos = new ArrayList<>();
         String query = "SELECT t.*,u.nombre as username "
@@ -90,7 +113,8 @@ public class TecnicoDAO {
                         resultSet.getString("telefono"),
                         resultSet.getString("direccion"),
                         resultSet.getInt("usuario_id"),
-                        resultSet.getString("username")
+                        resultSet.getString("username"),
+                        resultSet.getInt("estado")
                 );
                 tecnicos.add(tecnico);
             }
@@ -112,7 +136,8 @@ public class TecnicoDAO {
                         resultSet.getString("correo"),
                         resultSet.getString("telefono"),
                         resultSet.getString("direccion"),
-                        resultSet.getInt("usuario_id")
+                        resultSet.getInt("usuario_id"),
+                        resultSet.getInt("estado")
                 );
                 tecnicos.add(tecnico);
             }
@@ -177,5 +202,16 @@ public class TecnicoDAO {
             }
         }
         return false;
+    }
+    
+    public void cambiarEstadoTecnico(int idTecnico,int estado) throws SQLException{
+        
+        String sql = "Update tecnicos set estado = ? where id = ?";
+        
+        try(PreparedStatement stmt = connection.prepareStatement(sql)){
+            stmt.setInt(1, estado);
+            stmt.setInt(2, idTecnico);
+            stmt.executeUpdate();
+        }
     }
 }

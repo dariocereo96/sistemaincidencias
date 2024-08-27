@@ -24,6 +24,7 @@
     if (request.getSession().getAttribute("usuario") == null) {
         System.out.println("No hay sesion iniciada");
         response.sendRedirect(request.getContextPath() + "/auth/");
+        return;
     } else {
         TicketDAO ticketDAO = new TicketDAO(Conexion.getConexion());
         usuario = (Usuario) request.getSession().getAttribute("usuario");
@@ -92,67 +93,20 @@
             <nav class="navbar-default navbar-side" role="navigation" style="background-color: #004DA4;height: 100%">
                 <div class="sidebar-collapse">
                     <ul class="nav" id="main-menu">
-
                         <li>
-                            <a class="active-menu" href="${pageContext.request.contextPath}/administracion/"><i class="fa fa-dashboard"></i>Dashboard</a>
+                            <a class="active-menu" href="${pageContext.request.contextPath}/usuario/"><i class="fa fa-dashboard"></i> Dashboard</a>
                         </li>
-
-                        <li>
-                            <a href="#"><i class="fa fa-users"></i>Clientes<span class="fa arrow"></span></a>
-                            <ul class="nav nav-second-level">
-                                <li>
-                                    <a href="${pageContext.request.contextPath}/administracion/listaEmpresas.jsp"><i class="fa fa-briefcase"></i>Empresas</a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <li>
-                            <a href="#"><i class="fa fa-users"></i>Tecnicos<span class="fa arrow"></span></a>
-                            <ul class="nav nav-second-level">
-
-                                <li>
-                                    <a href="${pageContext.request.contextPath}/administracion/registrarTecnico.jsp"><i class="fa fa-plus fa-fw"></i>Registrar tecnico</a>
-                                </li>
-
-                                <li>
-                                    <a href="${pageContext.request.contextPath}/administracion/listaTecnicos.jsp"><i class="fa fa-file"></i>Listado de tecnicos</a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <li>
-                            <a href="#"><i class="fa fa-user fa-fw"></i>Usuarios<span class="fa arrow"></span></a>
-                            <ul class="nav nav-second-level">
-
-                                <li>
-                                    <a href="${pageContext.request.contextPath}/administracion/registrarusuario.jsp"><i class="fa fa-plus fa-fw"></i>Registrar usuario</a>
-                                </li>
-
-                                <li>
-                                    <a href="${pageContext.request.contextPath}/administracion/listausuarios.jsp"><i class="fa fa-file"></i>Listado de usuarios</a>
-                                </li>
-                            </ul>
-                        </li>
-
                         <li>
                             <a href="#"><i class="fa fa-list"></i>Incidencias<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
-                                <%
-                                    int rol3 = usuario != null ? usuario.getRolId() : -1;
-                                    if (rol3 == 5) {
-                                %>
                                 <li>
-                                    <a href="${pageContext.request.contextPath}/administracion/crearticket.jsp"><i class="fa fa-plus fa-fw"></i>Registrar ticket</a>
-                                </li>
-                                <%}%>
-                                <li>
-                                    <a href="${pageContext.request.contextPath}/administracion/listatickets.jsp"><i class="fa fa-ticket"></i>Tickets pendientes</a>
+                                    <a href="${pageContext.request.contextPath}/usuario/crearticket.jsp"><i class="fa fa-plus fa-fw"></i>Nuevo ticket</a>
                                 </li>
                                 <li>
-                                    <a href="${pageContext.request.contextPath}/administracion/listaticketAsignados.jsp"><i class="fa fa-ticket"></i>Tickets asignados</a>
+                                    <a href="${pageContext.request.contextPath}/usuario/listatickets.jsp"><i class="fa fa-ticket"></i>Tickets creados</a>
                                 </li>
                                 <li>
-                                    <a href="${pageContext.request.contextPath}/administracion/listaticketCerrados.jsp"><i class="fa fa-ticket"></i>Tickets cerrados</a>
+                                    <a href="${pageContext.request.contextPath}/usuario/listaticketscerrados.jsp"><i class="fa fa-ticket"></i>Tickets cerrados</a>
                                 </li>
                             </ul>
                         </li>

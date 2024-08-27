@@ -14,10 +14,30 @@
     if (request.getSession().getAttribute("usuario") == null) {
         System.out.println("No hay sesion iniciada");
         response.sendRedirect(request.getContextPath() + "/auth/");
+        return;
     } else {
         EmpresaDAO empresaDAO = new EmpresaDAO(Conexion.getConexion());
-        listaEmpresas = empresaDAO.obtenerEmpresas();
+        
         usuario = (Usuario) request.getSession().getAttribute("usuario");
+        
+        List<Empresa> lista = empresaDAO.obtenerEmpresas();
+         
+        if (request.getParameter("inactivo") != null) {
+            for(Empresa empresa: lista ){
+                if(empresa.getEstado()==0){
+                     listaEmpresas.add(empresa);
+                }
+            }
+            
+        }else{
+            for(Empresa empresa: lista ){
+                
+                if(empresa.getEstado()==1){
+                     listaEmpresas.add(empresa);
+                }
+            }
+        }
+        
     }
 
     String mensajeAlerta = (String) session.getAttribute("mensajeAlerta");
@@ -180,8 +200,12 @@
                                         int rol4 = usuario != null ? usuario.getRolId() : -1;
                                         if (rol4 == 5) {
                                     %>
-                                    <a href="${pageContext.request.contextPath}/administracion/registrarEmpresa.jsp" class="btn btn-primary"><i class="fa fa-plus-circle" style="margin-right: 6px"></i>Registrar empresa</a>
+                                    <a href="${pageContext.request.contextPath}/administracion/registrarEmpresa.jsp" class="btn btn-primary" style="margin-right: 20px"><i class="fa fa-plus-circle" style="margin-right: 6px"></i>Registrar empresa</a>
                                     <%}%>
+                                    
+                                    <a href="${pageContext.request.contextPath}/administracion/listaEmpresas.jsp" class="btn btn-success"><i class="fa fa-file" style="margin-right: 6px"></i>Empresas Activas</a>
+                                    <a href="${pageContext.request.contextPath}/administracion/listaEmpresas.jsp?inactivo=0" class="btn btn-danger"><i class="fa fa-file" style="margin-right: 6px"></i>Empresas Inactivas</a>
+                                    
                                     <table class="table table-striped table-bordered table-hover" style="margin-top: 10px">
                                         <thead style="font-size: 12px;text-align: center">
                                             <tr>
@@ -191,11 +215,11 @@
                                                 <th>Telefono</th>
                                                 <th>Correo</th>
                                                 <th>Usuario</th>
-
-                                                <%
-                                                    int rol5 = usuario != null ? usuario.getRolId() : -1;
-                                                    if (rol5 == 5) {
-                                                %>
+                                                <th>Estado</th>
+                                                    <%
+                                                        int rol5 = usuario != null ? usuario.getRolId() : -1;
+                                                        if (rol5 == 5) {
+                                                    %>
                                                 <th>Acciones</th>
                                                     <%}%>
                                             </tr>
@@ -210,13 +234,18 @@
                                                 <td><%= empresa.getTelefono()%></td>
                                                 <td><%= empresa.getCorreo()%></td>
                                                 <td><%= (empresa.getUsername() != null) ? empresa.getUsername() : "No asignado"%></td>
+                                                <td><%= (empresa.getEstado() == 1) ? "Activo" : "Inactivo"%></td>
                                                 <%
                                                     int rol6 = usuario != null ? usuario.getRolId() : -1;
                                                     if (rol6 == 5) {
                                                 %>
                                                 <td style="display: flex;">
                                                     <a class="btn-custom" style="background-color: #0088cc;display: flex;margin-right: 2px;justify-content: center" href="${pageContext.request.contextPath}/administracion/editarEmpresa.jsp?id=<%= empresa.getId()%>"><i class="fa fa-edit" style="margin-top: 2px;margin-right: 2px"></i>Editar</a>
-                                                    <a class="btn-custom" style="background-color: #b92c28;display:flex;justify-content: center" href="${pageContext.request.contextPath}/EmpresaController?action=eliminar&id=<%= empresa.getId()%>"><i class="fa fa-minus-circle" style="margin-top: 2px;margin-right: 2px"></i>Eliminar</a>
+                                                    <%if (empresa.getEstado() == 1) {%>
+                                                    <a class="btn-custom" style="background-color: #F0433D;display: flex;justify-content: center;width: 100%" href="${pageContext.request.contextPath}/EmpresaController?action=cambiarEstado&id=<%= empresa.getId()%>&valor=0"><i class="fa fa-minus-circle" style="margin-top: 2px;margin-right: 2px"></i>Desactivar</a>
+                                                    <%} else {%>
+                                                    <a class="btn-custom" style="background-color: #398439;display: flex;justify-content: center;width: 100%" href="${pageContext.request.contextPath}/EmpresaController?action=cambiarEstado&id=<%= empresa.getId()%>&valor=1"><i class="fa fa-minus-circle" style="margin-top: 2px;margin-right: 2px"></i>Activar</a>
+                                                    <% } %>
                                                 </td>
                                                 <%}%>
                                             </tr>

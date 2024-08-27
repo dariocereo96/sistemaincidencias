@@ -20,11 +20,12 @@ public class Tecnico {
     private String direccion;
     private int usuarioId;
     private String username;
+    private int estado;
 
     public Tecnico() {
     }
 
-    public Tecnico(int id, String cedula, String nombre, String apellido, String correo, String telefono, String direccion, int usuarioId) {
+    public Tecnico(int id, String cedula, String nombre, String apellido, String correo, String telefono, String direccion, int usuarioId,int estado) {
         this.id = id;
         this.cedula = cedula;
         this.nombre = nombre;
@@ -33,9 +34,10 @@ public class Tecnico {
         this.telefono = telefono;
         this.direccion = direccion;
         this.usuarioId = usuarioId;
+        this.estado = estado;
     }
 
-    public Tecnico(int id, String cedula, String nombre, String apellido, String correo, String telefono, String direccion, int usuarioId, String username) {
+    public Tecnico(int id, String cedula, String nombre, String apellido, String correo, String telefono, String direccion, int usuarioId, String username,int estado) {
         this.id = id;
         this.cedula = cedula;
         this.nombre = nombre;
@@ -45,6 +47,7 @@ public class Tecnico {
         this.direccion = direccion;
         this.usuarioId = usuarioId;
         this.username = username;
+        this.estado = estado;
     }
 
     public int getId() {
@@ -119,4 +122,12 @@ public class Tecnico {
         this.username = username;
     }
 
+    public int getEstado() {
+        return estado;
+    }
+
+    public void setEstado(int estado) {
+        this.estado = estado;
+    }
+    
 }

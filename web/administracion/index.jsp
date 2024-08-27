@@ -16,6 +16,7 @@
     if (request.getSession().getAttribute("usuario") == null) {
         System.out.println("No hay sesion iniciada");
         response.sendRedirect(request.getContextPath() + "/auth/");
+        return;
     } else {
         usuario = (Usuario) request.getSession().getAttribute("usuario");
         TicketDAO ticketDAO = new TicketDAO(Conexion.getConexion());

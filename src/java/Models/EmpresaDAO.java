@@ -51,7 +51,8 @@ public class EmpresaDAO {
                         resultSet.getString("correo"),
                         resultSet.getString("ruc"),
                         resultSet.getInt("usuario_id"),
-                        resultSet.getString("username")
+                        resultSet.getString("username"),
+                        resultSet.getInt("estado")
                 );
             }
         }
@@ -74,7 +75,8 @@ public class EmpresaDAO {
                         resultSet.getString("correo"),
                         resultSet.getString("ruc"),
                         resultSet.getInt("usuario_id"),
-                        resultSet.getString("username")
+                        resultSet.getString("username"),
+                        resultSet.getInt("estado")
                 );
             }
         }
@@ -97,7 +99,8 @@ public class EmpresaDAO {
                         resultSet.getString("correo"),
                         resultSet.getString("ruc"),
                         resultSet.getInt("usuario_id"),
-                        resultSet.getString("username")
+                        resultSet.getString("username"),
+                        resultSet.getInt("estado")
                 );
                 empresas.add(empresa);
             }
@@ -118,7 +121,8 @@ public class EmpresaDAO {
                         resultSet.getString("telefono"),
                         resultSet.getString("correo"),
                         resultSet.getString("ruc"),
-                        resultSet.getInt("usuario_id")
+                        resultSet.getInt("usuario_id"),
+                        resultSet.getInt("estado")
                 );
                 empresas.add(empresa);
             }
@@ -139,7 +143,8 @@ public class EmpresaDAO {
                         resultSet.getString("telefono"),
                         resultSet.getString("correo"),
                         resultSet.getString("ruc"),
-                        resultSet.getInt("usuario_id")
+                        resultSet.getInt("usuario_id"),
+                        resultSet.getInt("estado")
                 );
                 empresas.add(empresa);
             }
@@ -204,5 +209,16 @@ public class EmpresaDAO {
             }
         }
         return false;
+    }
+    
+    public void cambiarEstadoEmpresa(int idEmpresa,int estado) throws SQLException{
+        
+        String sql = "Update empresas set estado = ? where id = ?";
+        
+        try(PreparedStatement stmt = connection.prepareStatement(sql)){
+            stmt.setInt(1, estado);
+            stmt.setInt(2, idEmpresa);
+            stmt.executeUpdate();
+        }
     }
 }

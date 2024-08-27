@@ -1,3 +1,8 @@
+<%@page import="java.time.LocalDateTime"%>
+<%@page import="java.time.LocalDate"%>
+<%@page import="java.time.format.DateTimeFormatter"%>
+<%@page import="java.util.Date"%>
+<%@page import="java.text.SimpleDateFormat"%>
 <%@page import="Models.TipoTicketDAO"%>
 <%@page import="Models.TipoTicket"%>
 <%@page import="java.util.ArrayList"%>
@@ -13,16 +18,25 @@
     Usuario usuario = null;
     List<Ticket> tickets = new ArrayList<Ticket>();
     List<TipoTicket> tiposTickets = new ArrayList<TipoTicket>();
+    List<Usuario> usuariosTecnicos = new ArrayList<Usuario>();
+    
+    // Crear un formato de fecha
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+    // Obtener la fecha actual
+    String today = sdf.format(new Date());
 
     if (request.getSession().getAttribute("usuario") == null) {
         System.out.println("No hay sesion iniciada");
         response.sendRedirect(request.getContextPath() + "/auth/");
+        return;
     } else {
         usuario = (Usuario) request.getSession().getAttribute("usuario");
         TicketDAO ticketDAO = new TicketDAO(Conexion.getConexion());
         UsuarioDAO usuarioDAO = new UsuarioDAO(Conexion.getConexion());
         tiposTickets = new TipoTicketDAO(Conexion.getConexion()).obtenerTodosTipoTicket();
-
+        usuariosTecnicos = usuarioDAO.obtenerTodosUsuariosTecnicos();
+        
         if (request.getParameter("idticket") != null) {
             int id = Integer.parseInt(request.getParameter("idticket").toString());
             Ticket ticket = ticketDAO.obtenerTicketId(id);
@@ -40,6 +54,35 @@
             String prioridad = request.getParameter("prioridad");
             tickets = ticketDAO.obtenerTodosTicketsCerradosByPrioridad(prioridad);
 
+        } else if (request.getParameter("fechaInicio") != null && request.getParameter("fechaFinal") != null) {
+            // Formato de la fecha y hora en el string
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+            // Fechas ingresadas por el usuario (convertidas a LocalDate)
+            LocalDate fechaInicio = LocalDate.parse(request.getParameter("fechaInicio"), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            LocalDate fechaFinal = LocalDate.parse(request.getParameter("fechaFinal"), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+            // Obtener la lista de tickets
+            List<Ticket> lista = ticketDAO.obtenerTodosTicketsCerrados();
+
+            // Filtrar la lista usando un bucle for
+            for (Ticket ticket : lista) {
+                // Parsear la cadena de fecha y hora a LocalDateTime usando el formato completo
+                LocalDateTime fechaRegistro = LocalDateTime.parse(ticket.getFechaCreacion(), formatter);
+
+                // Extraer la fecha (sin hora) para la comparación
+                LocalDate fechaRegistroSoloFecha = fechaRegistro.toLocalDate();
+
+                // Verificar si la fecha del ticket está dentro del rango
+                if (!fechaRegistroSoloFecha.isBefore(fechaInicio) && !fechaRegistroSoloFecha.isAfter(fechaFinal)) {
+                    tickets.add(ticket);
+                }
+            }
+
+        }else if(request.getParameter("idTecnico")!=null){
+            int idTecnico = Integer.parseInt(request.getParameter("idTecnico").toString());
+            tickets = ticketDAO.obtenerTodosTicketsAsignadosTecnicoByEstado(idTecnico,"cerrado");
+            
         } else {
             tickets = ticketDAO.obtenerTodosTicketsCerrados();
         }
@@ -265,6 +308,38 @@
                                             </div>
                                         </form>
                                     </div>
+                                    
+                                    <div style="margin-bottom: 20px;display: flex">
+                                        <form style="display: flex">
+                                            <div style="display: flex; margin-right: 10px">
+                                                <label style="margin-right: 10px; margin-top: 6px">INICIO</label>
+                                                <input type="date" max="<%= today%>" required="" class="form-control" name="fechaInicio" value="<%= today%>"/>
+                                            </div>
+
+                                            <div style="display: flex; margin-right: 10px">
+                                                <label style="margin-right: 10px; margin-top: 6px">FINAL</label>
+                                                <input type="date" max="<%= today%>" required="" class="form-control" name="fechaFinal" value="<%= today%>"/>
+                                            </div>
+
+                                            <button class="btn btn-warning" style="color: #000; font-weight: bold">Buscar</button>
+                                        </form>
+                                        
+                                        <form style="display: flex;margin-left: 20px">
+                                            <label style="margin-right: 10px; margin-top: 6px">Tecnico</label>
+                                            <select name="idTecnico" class="form-control">
+                                                <%
+                                                    for (Usuario tecnico : usuariosTecnicos) {
+                                                %>
+                                                <option value="<%= tecnico.getId()%>"><%= tecnico.getNombreCompletoUsuario()%></option>
+                                                <%
+                                                    }
+                                                %>
+                                            </select>
+                                            <button class="btn btn-warning" style="color: #000; font-weight: bold;margin-left: 10px">Buscar</button>
+                                        </form>  
+                                    </div>                
+                                                
+                                                
                                     <div class="table-responsive">
                                         <table class="table table-striped table-bordered table-hover">
                                             <thead style="font-size: 12px;text-align: center">
@@ -308,7 +383,8 @@
                                                     <td><%= ticket.getFechaResolucion()%></td>
                                                     <td><%= ticket.getNombreTecnico().toUpperCase()%> </td>
                                                     <td style="">
-                                                        <a href='#' class="btn-custom" style="background-color: #0088cc" onclick="openModal('<%=ticket.getTitulo()%>', '<%=ticket.getDescripcion()%>', <%=ticket.getId()%>, '<%=ticket.getFechaCreacion()%>', '<%=ticket.getRazonSocial()%>', '<%=ticket.getLugar()%>', '<%=ticket.getEncargado()%>', '<%=ticket.getSubTipoTicket()%>', '<%=ticket.getComentario()%>', '<%=ticket.getDireccionEmpresa()%>', '<%=ticket.getTelefonoEmpresa()%> ')"><i class="fa fa-eye"></i> Ver</a>
+                                                        <a href='#' class="btn-custom" style="background-color: #398439;margin-right: 2px;display: flex;justify-content: center" 
+                                                            onclick="openModal('<%=ticket.getTitulo()%>', '<%=ticket.getDescripcion()%>', <%=ticket.getId()%>, '<%=ticket.getFechaCreacion()%>', '<%=ticket.getRazonSocial()%>', '<%=ticket.getLugar()%>', '<%=ticket.getEncargado()%>', '<%=ticket.getSubTipoTicket()%>', '<%=ticket.getDireccionEmpresa()%>', '<%=ticket.getTelefonoEmpresa()%> ', '<%=ticket.getComentario() != null ? ticket.getComentario() : ""%>', '<%=ticket.getValoracion() != null ? ticket.getValoracion().trim() : "excelente"%>','<%=ticket.getComentarioUsuario() != null ? ticket.getComentarioUsuario(): "NO HAY COMENTARIOS POR PARTE DEL USUARIO"%>')"><i class="fa fa-eye" style="margin-top: 2px;margin-right: 2px"></i>Ver</a>
                                                         <a target="_blank" href="${pageContext.request.contextPath}/pdf/ticketpdf.jsp?id=<%=ticket.getId()%>" class="btn-custom" style="background-color: #c12e2a;display: flex"><i class="fa fa-file" style="margin-right: 4px;margin-top: 2px"></i> PDF</a>
                                                     </td>
                                                 </tr>
@@ -397,6 +473,25 @@
                                     <textarea class="form-control" id="comentario" name="comentario" rows="5" readonly="true"></textarea>
                                 </div>
                             </div>
+                            
+                            <div class="row" style="margin-bottom: 15px">
+                                <div class="col-md-12">
+                                    <label for="valoracion">Calificacion de la atencion</label>
+                                    <select class="form-control" disabled="" name="valoracion" id="valoracion">
+                                        <option value="excelente">Excelente</option>
+                                        <option value="buena">Buena</option>
+                                        <option value="regular">Regular</option>
+                                        <option value="mala">Mala</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="row" style="margin-bottom: 15px">
+                                <div class="col-md-12">
+                                    <label>Comentario del Usuario</label>
+                                    <textarea class="form-control" readonly placeholder="Describa la calidad de la atencion" id="comentarioUsuario" name="comentarioUsuario" rows="5" required=""></textarea>
+                                </div>
+                            </div>
 
                         </div>
                         <div class="modal-footer">
@@ -426,50 +521,52 @@
         <script src="${pageContext.request.contextPath}/assets/js/custom-scripts.js"></script>
 
         <script>
-                                                            function openModal(titulo, descripcion, idTicket, fecha, empresa, lugar, resposable, tipo, comentario, direccion, telefono) {
-                                                                // Abrir el modal
-                                                                $('#titulo').val(titulo);
-                                                                $('#fecha').val(fecha);
-                                                                $('#empresa').val(empresa);
-                                                                $('#lugar').val(lugar);
-                                                                $('#responsable').val(resposable);
-                                                                $('#tipoIncidencia').val(tipo);
-                                                                $('#descripcion').val(descripcion);
-                                                                $('#idTicket').val(idTicket);
-                                                                $('#comentario').val(comentario);
-                                                                $('#direccion').val(direccion);
-                                                                $('#telefono').val(telefono);
-                                                                $('#myModalLabel').text('Detalles del Ticket #' + idTicket);
-                                                                $('#myModal').modal('show');
-                                                            }
+            function openModal(titulo, descripcion, idTicket, fecha, empresa, lugar, resposable, tipo, comentario, direccion, telefono, valoracion, comentario_usuario) {
+                // Abrir el modal
+                $('#titulo').val(titulo);
+                $('#fecha').val(fecha);
+                $('#empresa').val(empresa);
+                $('#lugar').val(lugar);
+                $('#responsable').val(resposable);
+                $('#tipoIncidencia').val(tipo);
+                $('#descripcion').val(descripcion);
+                $('#idTicket').val(idTicket);
+                $('#comentario').val(comentario);
+                $('#comentarioUsuario').val(comentario_usuario);
+                $('#valoracion').val(valoracion);
+                $('#direccion').val(direccion);
+                $('#telefono').val(telefono);
+                $('#myModalLabel').text('Detalles del Ticket #' + idTicket);
+                $('#myModal').modal('show');
+            }
 
-                                                            function openModal2(titulo, descripcion, idTicket) {
-                                                                $('#idTicket').val(idTicket);
-                                                                $('#titulo2').val(titulo);
-                                                                $('#descripcion2').val(descripcion);
-                                                                $('#myModalLabel2').text('Cerrar Ticket #' + idTicket);
-                                                                $('#myModal2').modal('show');
-                                                            }
+            function openModal2(titulo, descripcion, idTicket) {
+                $('#idTicket').val(idTicket);
+                $('#titulo2').val(titulo);
+                $('#descripcion2').val(descripcion);
+                $('#myModalLabel2').text('Cerrar Ticket #' + idTicket);
+                $('#myModal2').modal('show');
+            }
 
-                                                            function guardar() {
-                                                                document.getElementById('formulario').submit();
-                                                            }
+            function guardar() {
+                document.getElementById('formulario').submit();
+            }
 
-                                                            function validarNumeros(event) {
-                                                                const input = event.target;
-                                                                const value = input.value;
+            function validarNumeros(event) {
+                const input = event.target;
+                const value = input.value;
 
-                                                                // Expresión regular para remover cualquier carácter que no sea un número
-                                                                input.value = value.replace(/\D/g, '');
+                // Expresión regular para remover cualquier carácter que no sea un número
+                input.value = value.replace(/\D/g, '');
 
-                                                                // Opcional: Mostrar mensaje de error si se desea informar al usuario
-                                                                const errorMessage = document.getElementById('error-message');
-                                                                if (input.value !== value) {
-                                                                    errorMessage.textContent = 'El campo solo debe contener números.';
-                                                                } else {
-                                                                    errorMessage.textContent = '';
-                                                                }
-                                                            }
+                // Opcional: Mostrar mensaje de error si se desea informar al usuario
+                const errorMessage = document.getElementById('error-message');
+                if (input.value !== value) {
+                    errorMessage.textContent = 'El campo solo debe contener números.';
+                } else {
+                    errorMessage.textContent = '';
+                }
+            }
 
         </script>
     </body>

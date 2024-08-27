@@ -1,3 +1,8 @@
+<%@page import="java.time.LocalDateTime"%>
+<%@page import="java.time.LocalDate"%>
+<%@page import="java.time.format.DateTimeFormatter"%>
+<%@page import="java.util.Date"%>
+<%@page import="java.text.SimpleDateFormat"%>
 <%@page import="Models.TipoTicketDAO"%>
 <%@page import="Models.TipoTicket"%>
 <%@page import="java.util.ArrayList"%>
@@ -14,10 +19,17 @@
     List<Ticket> tickets = new ArrayList<Ticket>();
     List<TipoTicket> tiposTickets = new ArrayList<TipoTicket>();
     List<Usuario> usuariosTecnicos = new ArrayList<Usuario>();
+    
+    // Crear un formato de fecha
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+    // Obtener la fecha actual
+    String today = sdf.format(new Date());
 
     if (request.getSession().getAttribute("usuario") == null) {
         System.out.println("No hay sesion iniciada");
         response.sendRedirect(request.getContextPath() + "/auth/");
+        return;
     } else {
         usuario = (Usuario) request.getSession().getAttribute("usuario");
         TicketDAO ticketDAO = new TicketDAO(Conexion.getConexion());
@@ -46,7 +58,36 @@
 
             tickets = ticketDAO.obtenerTodosTicketsAsignadosByPrioridad(prioridad);
 
-        } else {
+        }else if (request.getParameter("fechaInicio") != null && request.getParameter("fechaFinal") != null) {
+            // Formato de la fecha y hora en el string
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+            // Fechas ingresadas por el usuario (convertidas a LocalDate)
+            LocalDate fechaInicio = LocalDate.parse(request.getParameter("fechaInicio"), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            LocalDate fechaFinal = LocalDate.parse(request.getParameter("fechaFinal"), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+            // Obtener la lista de tickets
+            List<Ticket> lista = ticketDAO.obtenerTodosTicketsAsignados();
+
+            // Filtrar la lista usando un bucle for
+            for (Ticket ticket : lista) {
+                // Parsear la cadena de fecha y hora a LocalDateTime usando el formato completo
+                LocalDateTime fechaRegistro = LocalDateTime.parse(ticket.getFechaCreacion(), formatter);
+
+                // Extraer la fecha (sin hora) para la comparación
+                LocalDate fechaRegistroSoloFecha = fechaRegistro.toLocalDate();
+
+                // Verificar si la fecha del ticket está dentro del rango
+                if (!fechaRegistroSoloFecha.isBefore(fechaInicio) && !fechaRegistroSoloFecha.isAfter(fechaFinal)) {
+                    tickets.add(ticket);
+                }
+            }
+
+        }else if(request.getParameter("idTecnico")!=null){
+            int idTecnico = Integer.parseInt(request.getParameter("idTecnico").toString());
+            tickets = ticketDAO.obtenerTodosTicketsAsignadosTecnicoByEstado(idTecnico,"en proceso");
+            
+        }else {
             tickets = ticketDAO.obtenerTodosTicketsAsignados();
         }
     }
@@ -268,8 +309,38 @@
                                                 <button class="btn btn-warning" style="color: #000;font-weight: bold">Buscar</button>
                                             </div>
                                         </form>
+                                                     
                                     </div>
+                                                
+                                    <div style="margin-bottom: 20px;display: flex">
+                                        <form style="display: flex">
+                                            <div style="display: flex; margin-right: 10px">
+                                                <label style="margin-right: 10px; margin-top: 6px">INICIO</label>
+                                                <input type="date" max="<%= today%>" required="" class="form-control" name="fechaInicio" value="<%= today%>"/>
+                                            </div>
 
+                                            <div style="display: flex; margin-right: 10px">
+                                                <label style="margin-right: 10px; margin-top: 6px">FINAL</label>
+                                                <input type="date" max="<%= today%>" required="" class="form-control" name="fechaFinal" value="<%= today%>"/>
+                                            </div>
+
+                                            <button class="btn btn-warning" style="color: #000; font-weight: bold">Buscar</button>
+                                        </form>
+                                        
+                                        <form style="display: flex;margin-left: 20px">
+                                            <label style="margin-right: 10px; margin-top: 6px">Tecnico</label>
+                                            <select name="idTecnico" class="form-control">
+                                                <%
+                                                    for (Usuario tecnico : usuariosTecnicos) {
+                                                %>
+                                                <option value="<%= tecnico.getId()%>"><%= tecnico.getNombreCompletoUsuario()%></option>
+                                                <%
+                                                    }
+                                                %>
+                                            </select>
+                                            <button class="btn btn-warning" style="color: #000; font-weight: bold;margin-left: 10px">Buscar</button>
+                                        </form>                        
+                                    </div>            
 
                                     <div class="table-responsive">
                                         <table class="table table-striped table-bordered table-hover">

@@ -16,10 +16,27 @@
     if (request.getSession().getAttribute("usuario") == null) {
         System.out.println("No hay sesion iniciada");
         response.sendRedirect(request.getContextPath() + "/auth/");
+        return;
     } else {
         TecnicoDAO tecnicoDAO = new TecnicoDAO(Conexion.getConexion());
-        listaTecnicos = tecnicoDAO.obtenerTecnicos();
         usuario = (Usuario) request.getSession().getAttribute("usuario");
+        
+        List<Tecnico> lista = tecnicoDAO.obtenerTecnicos();
+        
+        if (request.getParameter("inactivo") != null) {
+            for(Tecnico tecnico : lista){
+                if(tecnico.getEstado()==0){
+                    listaTecnicos.add(tecnico);
+                }
+            }
+            
+        } else {
+             for(Tecnico tecnico : lista){
+                if(tecnico.getEstado()==1){
+                    listaTecnicos.add(tecnico);
+                }
+            }
+        }
     }
 
     String mensajeAlerta = (String) session.getAttribute("mensajeAlerta");
@@ -184,7 +201,9 @@
                                         int rol4 = usuario != null ? usuario.getRolId() : -1;
                                         if (rol4 == 3 || rol4 == 4) {
                                     %>
-                                    <a href="${pageContext.request.contextPath}/administracion/registrarTecnico.jsp" class="btn btn-primary"><i class="fa fa-plus-circle" style="margin-right: 6px"></i>Registrar tecnico</a>
+                                    <a href="${pageContext.request.contextPath}/administracion/registrarTecnico.jsp" class="btn btn-primary" style="margin-right: 20px"><i class="fa fa-plus-circle" style="margin-right: 6px"></i>Registrar tecnico</a>
+                                    <a href="${pageContext.request.contextPath}/administracion/listaTecnicos.jsp" class="btn btn-success"><i class="fa fa-file" style="margin-right: 6px"></i>Tecnicos Activos</a>
+                                    <a href="${pageContext.request.contextPath}/administracion/listaTecnicos.jsp?inactivo=0" class="btn btn-danger"><i class="fa fa-file" style="margin-right: 6px"></i>Tecnicos Inactivos</a>
                                     <%}%>
                                     <table class="table table-striped table-bordered table-hover" style="margin-top: 10px">
                                         <thead style="font-size: 12px;text-align: center">
@@ -195,6 +214,7 @@
                                                 <th>Telefono</th>
                                                 <th>Direccion</th>
                                                 <th>Usuario</th>
+                                                <th>Estado</th>
                                                     <%
                                                         int rol5 = usuario != null ? usuario.getRolId() : -1;
                                                         if (rol5 == 3 || rol5 == 4) {
@@ -213,6 +233,7 @@
                                                 <td><%= tecnico.getTelefono()%></td>
                                                 <td><%= tecnico.getDireccion()%></td>
                                                 <td><%= (tecnico.getUsername() != null) ? tecnico.getUsername() : "No asignado"%></td>
+                                                <td><%= (tecnico.getEstado() == 1) ? "Activo" : "Inactivo"%></td>
                                                 <%
                                                     int rol6 = usuario != null ? usuario.getRolId() : -1;
                                                     if (rol6 == 3 || rol6 == 4) {
@@ -220,7 +241,12 @@
                                                 <td>
                                                     <div style="display: flex;">
                                                         <a class="btn-custom" style="background-color: #0088cc;display: flex;justify-content: center" href="${pageContext.request.contextPath}/administracion/editarTecnico.jsp?id=<%= tecnico.getId()%>"><i class="fa fa-edit" style="margin-top: 2px;margin-right: 2px"></i>Editar</a>
-                                                        <a class="btn-custom" style="background-color: #b92c28;display: flex;justify-content: center" href="${pageContext.request.contextPath}/TecnicoController?action=eliminar&id=<%= tecnico.getId()%>"><i class="fa fa-minus-circle" style="margin-top: 2px;margin-right: 2px"></i>Eliminar</a>
+
+                                                        <%if (tecnico.getEstado() == 1) {%>
+                                                        <a class="btn-custom" style="background-color: #F0433D;display: flex;justify-content: center;width: 100%" href="${pageContext.request.contextPath}/TecnicoController?action=cambiarEstado&id=<%= tecnico.getId()%>&valor=0"><i class="fa fa-minus-circle" style="margin-top: 2px;margin-right: 2px"></i>Desactivar</a>
+                                                        <%} else {%>
+                                                        <a class="btn-custom" style="background-color: #398439;display: flex;justify-content: center;width: 100%" href="${pageContext.request.contextPath}/TecnicoController?action=cambiarEstado&id=<%= tecnico.getId()%>&valor=1"><i class="fa fa-minus-circle" style="margin-top: 2px;margin-right: 2px"></i>Activar</a>
+                                                        <% } %>
                                                     </div>
                                                 </td>
                                                 <%}%>

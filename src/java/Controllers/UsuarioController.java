@@ -6,8 +6,10 @@
 package Controllers;
 
 import Configurations.Conexion;
+import Models.Empresa;
 import Models.EmpresaDAO;
 import Models.PasswordUtils;
+import Models.Tecnico;
 import Models.TecnicoDAO;
 import Models.Usuario;
 import Models.UsuarioDAO;
@@ -51,12 +53,16 @@ public class UsuarioController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String action = request.getParameter("action");
-
+        String action = request.getParameter("action").trim();
+        
         switch (action) {
             case "eliminar":
                 eliminar(request, response);
                 break;
+            case "cambiarEstado":
+                cambiarEstado(request, response);
+                break;
+                
             case "logout":
                 logout(request, response);
                 break;
@@ -224,7 +230,7 @@ public class UsuarioController extends HttpServlet {
                 // Encriptacion
                 String salt = PasswordUtils.generarSalt();
                 String contrasenaCifrada = PasswordUtils.encriptarPassword(contrasena, salt);
-        
+
                 usuario.setContrasena(contrasenaCifrada);
                 usuario.setSalt(salt);
             }
@@ -259,9 +265,31 @@ public class UsuarioController extends HttpServlet {
             // Crear sesión y almacenar el usuario
             HttpSession session = request.getSession();
 
+            // Obtener intentos fallidos de la sesión
+            Integer intentosFallidos = (Integer) session.getAttribute("intentosFallidosLogin");
+            if (intentosFallidos == null) {
+                intentosFallidos = 0;
+            }
+            
+            if(usuario == null){
+                session.setAttribute("mensajeError", "No hay usuario registrado.");
+                response.sendRedirect(auth);
+                return;
+            }
+
+            if (usuario != null) {
+                if (usuario.getEstado() != 1) {
+                    session.setAttribute("mensajeError", "Su usuario se encuentra Inactivo.");
+                    response.sendRedirect(auth);
+                    return;
+                }
+            }
+
             if (usuario != null && PasswordUtils.validarPassword(contrasena, usuario.getSalt(), usuario.getContrasena())) {
 
                 session.setAttribute("usuario", usuario);
+                
+                session.removeAttribute("intentosFallidosLogin");
 
                 switch (usuario.getRolId()) {
                     case 1:
@@ -276,7 +304,17 @@ public class UsuarioController extends HttpServlet {
                 }
 
             } else {
-                session.setAttribute("mensajeError", "Correo electrónico o contraseña incorrectos.");
+                intentosFallidos++;
+
+                if (intentosFallidos >= 3) {
+                    usuarioDAO.cambiarEstadoUsuario(usuario.getId(), 0);
+                    session.setAttribute("intentosFallidosLogin", intentosFallidos);
+                    session.setAttribute("mensajeError", "Has excedido el número de intentos. Usuario bloqueado.");
+                } else {
+                    session.setAttribute("intentosFallidosLogin", intentosFallidos);
+                    session.setAttribute("mensajeError", "Credenciales incorrectas. Numeo intentos :" + (3 - intentosFallidos));
+                }
+
                 response.sendRedirect(auth);
             }
 
@@ -324,4 +362,41 @@ public class UsuarioController extends HttpServlet {
 
     }
 
+    private void cambiarEstado(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            conexion = Conexion.getConexion();
+            usuarioDAO = new UsuarioDAO(conexion);
+            
+            int idUsuario = Integer.parseInt(request.getParameter("id"));
+            int estado = Integer.parseInt(request.getParameter("valor"));
+            
+            usuarioDAO.cambiarEstadoUsuario(idUsuario, estado);
+            
+            usuario = usuarioDAO.obtenerUsuarioPorId(idUsuario);
+            
+            if(usuario.getRolId()==1){
+                Empresa empresa = new EmpresaDAO(conexion).obtenerEmpresaIdUsuario(usuario.getId());
+                
+                if(empresa!=null){
+                    new EmpresaDAO(conexion).cambiarEstadoEmpresa(empresa.getId(), estado);
+                }
+            }
+            
+            if(usuario.getRolId()==2){
+                Tecnico tec = new TecnicoDAO(conexion).obtenerTecnicoIdUsuario(usuario.getId());
+                
+                if(tec!=null){
+                    new TecnicoDAO(conexion).cambiarEstadoTecnico(tec.getId(), estado);
+                }
+            }
+            
+            HttpSession session = request.getSession();
+            session.setAttribute("mensajeAlerta", "Estado cambiado del usuario.");
+            response.sendRedirect(listaUsuario);
+            
+        } catch (ClassNotFoundException | SQLException ex) {
+            request.setAttribute("mensaje", "Ocurrio un problema: " + ex.getMessage());
+            request.getRequestDispatcher(error).forward(request, response);
+        }
+    }
 }

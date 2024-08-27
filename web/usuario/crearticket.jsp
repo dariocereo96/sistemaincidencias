@@ -20,6 +20,7 @@
     if (request.getSession().getAttribute("usuario") == null) {
         System.out.println("No hay sesion iniciada");
         response.sendRedirect(request.getContextPath() + "/auth/");
+        return;
     } else {
         usuario = (Usuario) request.getSession().getAttribute("usuario");
         UsuarioDAO usuarioDAO = new UsuarioDAO(Conexion.getConexion());
@@ -102,7 +103,10 @@
                                     <a href="${pageContext.request.contextPath}/usuario/crearticket.jsp"><i class="fa fa-plus fa-fw"></i>Nuevo ticket</a>
                                 </li>
                                 <li>
-                                    <a href="${pageContext.request.contextPath}/usuario/listatickets.jsp"><i class="fa fa-clipboard"></i>Mis tickets creados</a>
+                                    <a href="${pageContext.request.contextPath}/usuario/listatickets.jsp"><i class="fa fa-clipboard"></i>Tickets creados</a>
+                                </li>
+                                <li>
+                                    <a href="${pageContext.request.contextPath}/usuario/listaticketscerrados.jsp"><i class="fa fa-ticket"></i>Tickets cerrados</a>
                                 </li>
                             </ul>
                         </li>
@@ -206,7 +210,7 @@
 
                                         <div class="form-group" id="div_otro" style="display: none">
                                             <label for="subtipo_id">Incidencia:</label>
-                                            <select class="form-control" id="subtipo_id5" name="subtipo_id" required>
+                                            <select class="form-control" id="subtipo_id5" name="subtipo_id5" required>
                                                 <%
                                                     for (SubTipoTicket subTipos : subTiposTicketsOtros) {
                                                 %>

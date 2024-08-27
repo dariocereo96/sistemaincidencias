@@ -87,7 +87,9 @@ public class TicketDAO {
                         rs.getString("comentario"),
                         rs.getString("direccionEmpresa"),
                         rs.getString("telefonoEmpresa"),
-                        rs.getString("correoEmpresa")
+                        rs.getString("correoEmpresa"),
+                        rs.getString("valoracion"),
+                        rs.getString("comentario_usuario")
                 );
             }
         }
@@ -166,7 +168,9 @@ public class TicketDAO {
                         "",
                         rs.getString("direccionEmpresa"),
                         rs.getString("telefonoEmpresa"),
-                        rs.getString("correoEmpresa")
+                        rs.getString("correoEmpresa"),
+                        rs.getString("valoracion"),
+                        rs.getString("comentario_usuario")
                 ));
             }
         }
@@ -218,7 +222,9 @@ public class TicketDAO {
                         "",
                         rs.getString("direccionEmpresa"),
                         rs.getString("telefonoEmpresa"),
-                        rs.getString("correoEmpresa")
+                        rs.getString("correoEmpresa"),
+                        rs.getString("valoracion"),
+                        rs.getString("comentario_usuario")
                 ));
             }
         }
@@ -270,7 +276,9 @@ public class TicketDAO {
                         "",
                         rs.getString("direccionEmpresa"),
                         rs.getString("telefonoEmpresa"),
-                        rs.getString("correoEmpresa")
+                        rs.getString("correoEmpresa"),
+                        rs.getString("valoracion"),
+                        rs.getString("comentario_usuario")
                 ));
             }
         }
@@ -322,7 +330,9 @@ public class TicketDAO {
                         "",
                         rs.getString("direccionEmpresa"),
                         rs.getString("telefonoEmpresa"),
-                        rs.getString("correoEmpresa")
+                        rs.getString("correoEmpresa"),
+                        rs.getString("valoracion"),
+                        rs.getString("comentario_usuario")
                 ));
             }
         }
@@ -374,7 +384,9 @@ public class TicketDAO {
                         "",
                         rs.getString("direccionEmpresa"),
                         rs.getString("telefonoEmpresa"),
-                        rs.getString("correoEmpresa")
+                        rs.getString("correoEmpresa"),
+                        rs.getString("valoracion"),
+                        rs.getString("comentario_usuario")
                 ));
             }
         }
@@ -426,7 +438,9 @@ public class TicketDAO {
                         "",
                         rs.getString("direccionEmpresa"),
                         rs.getString("telefonoEmpresa"),
-                        rs.getString("correoEmpresa")
+                        rs.getString("correoEmpresa"),
+                        rs.getString("valoracion"),
+                        rs.getString("comentario_usuario")
                 ));
             }
         }
@@ -478,7 +492,9 @@ public class TicketDAO {
                         rs.getString("comentario"),
                         rs.getString("direccionEmpresa"),
                         rs.getString("telefonoEmpresa"),
-                        rs.getString("correoEmpresa")
+                        rs.getString("correoEmpresa"),
+                        rs.getString("valoracion"),
+                        rs.getString("comentario_usuario")
                 ));
             }
         }
@@ -530,7 +546,9 @@ public class TicketDAO {
                         rs.getString("comentario"),
                         rs.getString("direccionEmpresa"),
                         rs.getString("telefonoEmpresa"),
-                        rs.getString("correoEmpresa")
+                        rs.getString("correoEmpresa"),
+                        rs.getString("valoracion"),
+                        rs.getString("comentario_usuario")
                 ));
             }
         }
@@ -582,7 +600,9 @@ public class TicketDAO {
                         rs.getString("comentario"),
                         rs.getString("direccionEmpresa"),
                         rs.getString("telefonoEmpresa"),
-                        rs.getString("correoEmpresa")
+                        rs.getString("correoEmpresa"),
+                        rs.getString("valoracion"),
+                        rs.getString("comentario_usuario")
                 ));
             }
         }
@@ -661,7 +681,9 @@ public class TicketDAO {
                         rs.getString("comentario"),
                         rs.getString("direccionEmpresa"),
                         rs.getString("telefonoEmpresa"),
-                        rs.getString("correoEmpresa")
+                        rs.getString("correoEmpresa"),
+                        rs.getString("valoracion"),
+                        rs.getString("comentario_usuario")
                 ));
             }
         }
@@ -711,7 +733,9 @@ public class TicketDAO {
                         rs.getString("comentario"),
                         rs.getString("direccionEmpresa"),
                         rs.getString("telefonoEmpresa"),
-                        rs.getString("correoEmpresa")
+                        rs.getString("correoEmpresa"),
+                        rs.getString("valoracion"),
+                        rs.getString("comentario_usuario")
                 ));
             }
         }
@@ -761,7 +785,9 @@ public class TicketDAO {
                         rs.getString("comentario"),
                         rs.getString("direccionEmpresa"),
                         rs.getString("telefonoEmpresa"),
-                        rs.getString("correoEmpresa")
+                        rs.getString("correoEmpresa"),
+                        rs.getString("valoracion"),
+                        rs.getString("comentario_usuario")
                 ));
             }
         }
@@ -812,7 +838,9 @@ public class TicketDAO {
                         rs.getString("comentario"),
                         rs.getString("direccionEmpresa"),
                         rs.getString("telefonoEmpresa"),
-                        rs.getString("correoEmpresa")
+                        rs.getString("correoEmpresa"),
+                        rs.getString("valoracion"),
+                        rs.getString("comentario_usuario")
                 ));
             }
         }
@@ -864,7 +892,9 @@ public class TicketDAO {
                         rs.getString("comentario"),
                         rs.getString("direccionEmpresa"),
                         rs.getString("telefonoEmpresa"),
-                        rs.getString("correoEmpresa")
+                        rs.getString("correoEmpresa"),
+                        rs.getString("valoracion"),
+                        rs.getString("comentario_usuario")
                 ));
             }
         }
@@ -916,7 +946,9 @@ public class TicketDAO {
                         rs.getString("comentario"),
                         rs.getString("direccionEmpresa"),
                         rs.getString("telefonoEmpresa"),
-                        rs.getString("correoEmpresa")
+                        rs.getString("correoEmpresa"),
+                        rs.getString("valoracion"),
+                        rs.getString("comentario_usuario")
                 ));
             }
         }
@@ -981,6 +1013,19 @@ public class TicketDAO {
         }
 
         return lista;
+    }
+    
+    // Metodo para valorizar el ticket
+    public void valorizarTicket(int idTicket, String valoracion, String comentario) throws SQLException {
+        
+        String sql = "UPDATE Tickets SET valoracion = ?, comentario_usuario = ? WHERE id = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, valoracion);
+            stmt.setString(2, comentario);
+            stmt.setInt(3, idTicket);
+            stmt.executeUpdate();
+        }
     }
 
 }

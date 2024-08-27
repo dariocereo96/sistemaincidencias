@@ -22,6 +22,7 @@
     if (request.getSession().getAttribute("usuario") == null) {
         System.out.println("No hay sesion iniciada");
         response.sendRedirect(request.getContextPath() + "/auth/");
+        return;
     } else {
         tiposTickets = new TipoTicketDAO(Conexion.getConexion()).obtenerTodosTipoTicket();
         listaEmpresas = new EmpresaDAO(Conexion.getConexion()).obtenerEmpresasAsignadas();

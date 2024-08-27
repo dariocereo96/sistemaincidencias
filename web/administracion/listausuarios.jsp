@@ -12,10 +12,26 @@
     if (request.getSession().getAttribute("usuario") == null) {
         System.out.println("No hay sesion iniciada");
         response.sendRedirect(request.getContextPath() + "/auth/");
+        return;
     } else {
         UsuarioDAO usuarioDAO = new UsuarioDAO(Conexion.getConexion());
         usuarios = (Usuario) request.getSession().getAttribute("usuario");
-        listaUsuarios = usuarioDAO.obtenerTodosUsuarios();
+        
+        List<Usuario> lista = usuarioDAO.obtenerTodosUsuarios();
+        
+        if (request.getParameter("inactivo") != null) {
+            for(Usuario user : lista){
+                if(user.getEstado()==0){
+                    listaUsuarios.add(user);
+                }
+            }
+        } else {
+             for(Usuario user : lista){
+                if(user.getEstado()==1){
+                     listaUsuarios.add(user);
+                }
+            }
+        }
     }
 
     String mensajeAlerta = (String) session.getAttribute("mensajeAlerta");
@@ -177,7 +193,9 @@
                             <% } %>
                             <div class="panel panel-default">
                                 <div class="panel-body">
-                                    <a href="${pageContext.request.contextPath}/administracion/registrarusuario.jsp" class="btn btn-primary"><i class="fa fa-plus-circle" style="margin-right: 6px"></i>Registrar usuario</a>
+                                    <a href="${pageContext.request.contextPath}/administracion/registrarusuario.jsp" class="btn btn-primary" style="margin-right: 20px"><i class="fa fa-plus-circle" style="margin-right: 6px"></i>Registrar usuario</a>
+                                    <a href="${pageContext.request.contextPath}/administracion/listausuarios.jsp" class="btn btn-success"><i class="fa fa-file" style="margin-right: 6px"></i>Usuarios Activos</a>
+                                    <a href="${pageContext.request.contextPath}/administracion/listausuarios.jsp?inactivo=0" class="btn btn-danger"><i class="fa fa-file" style="margin-right: 6px"></i>Usuarios Inactivos</a>
                                     <table class="table table-striped table-bordered table-hover" style="margin-top: 10px">
                                         <thead style="font-size: 12px;text-align: center">
                                             <tr>
@@ -186,6 +204,7 @@
                                                 <th>Correo Electrónico</th>
                                                 <th>Rol</th>
                                                 <th>Asignado a</th>
+                                                <th>Estado</th>
                                                 <th>Acciones</th>
                                             </tr>
                                         </thead>
@@ -204,21 +223,31 @@
                                                 <td><%= usuario.getCorreoElectronico()%></td>
                                                 <td><%= usuario.getTipoUsuario()%></td>
                                                 <td><%= usuario.getNombreEmpresa()%></td>
-
+                                                <td><%= (usuario.getEstado() == 1) ? "Activo" : "Inactivo"%></td>
                                                 <td style="display: flex">
                                                     <a class="btn-custom" style="background-color: #0075b0; margin-right: 2px; display: flex; justify-content: center" href="${pageContext.request.contextPath}/administracion/editarusuario.jsp?id=<%= usuario.getId()%>">
                                                         <i class="fa fa-edit" style="margin-top: 2px; margin-right: 2px"></i>Editar
                                                     </a>
-                                                    <a class="btn-custom" style="background-color: #F0433D; display: flex; justify-content: center" href="${pageContext.request.contextPath}/UsuarioController?action=eliminar&id=<%= usuario.getId()%>">
-                                                        <i class="fa fa-minus-circle" style="margin-top: 2px; margin-right: 2px"></i>Eliminar
+                                                    <%if (usuario.getEstado() == 1) {%>
+                                                    <!-- Si el usuario está activo, solo mostrar el botón para desactivar -->
+                                                    <a class="btn-custom" style="background-color: #F0433D; display: flex; justify-content: center;width: 100%" 
+                                                       href="${pageContext.request.contextPath}/UsuarioController?action=cambiarEstado&id=<%= usuario.getId()%>&valor=0">
+                                                        <i class="fa fa-minus-circle" style="margin-top: 2px; margin-right: 2px"></i> Desactivar
                                                     </a>
+                                                    <%} else {%>
+                                                    <!-- Si el usuario está inactivo, solo mostrar el botón para activar -->
+                                                    <a class="btn-custom" style="background-color: #398439; display: flex; justify-content: center;width: 100%" 
+                                                       href="${pageContext.request.contextPath}/UsuarioController?action=cambiarEstado&id=<%= usuario.getId()%>&valor=1">
+                                                        <i class="fa fa-check-circle" style="margin-top: 2px; margin-right: 2px"></i> Activar
+                                                    </a>
+                                                    <% } %>
                                                 </td>
                                             </tr>
                                             <%
                                                 }
                                             } else {
                                                 // Mostrar todos los usuarios sin importar el RolId
-%>
+                                            %>
                                             <tr>
                                                 <td><%= usuario.getId()%></td>
                                                 <td><%= usuario.getNombre()%></td>
@@ -233,13 +262,27 @@
                                                 <td style="text-align: center">-</td>
                                                 <%}%>
 
+                                                <td><%= (usuario.getEstado() == 1) ? "Activo" : "Inactivo"%></td>
+
                                                 <td style="display: flex">
                                                     <a class="btn-custom" style="background-color: #0075b0; margin-right: 2px; display: flex; justify-content: center" href="${pageContext.request.contextPath}/administracion/editarusuario.jsp?id=<%= usuario.getId()%>">
                                                         <i class="fa fa-edit" style="margin-top: 2px; margin-right: 2px"></i>Editar
                                                     </a>
-                                                    <a class="btn-custom" style="background-color: #F0433D; display: flex; justify-content: center" href="${pageContext.request.contextPath}/UsuarioController?action=eliminar&id=<%= usuario.getId()%>">
-                                                        <i class="fa fa-minus-circle" style="margin-top: 2px; margin-right: 2px"></i>Eliminar
+
+                                                    <%if (usuario.getEstado() == 1) {%>
+                                                    <!-- Si el usuario está activo, solo mostrar el botón para desactivar -->
+                                                    <a class="btn-custom" style="background-color: #F0433D; display: flex; justify-content: center;width: 100%" 
+                                                       href="${pageContext.request.contextPath}/UsuarioController?action=cambiarEstado&id=<%= usuario.getId()%>&valor=0">
+                                                        <i class="fa fa-minus-circle" style="margin-top: 2px; margin-right: 2px"></i> Desactivar
                                                     </a>
+                                                    <%} else {%>
+                                                    <!-- Si el usuario está inactivo, solo mostrar el botón para activar -->
+                                                    <a class="btn-custom" style="background-color: #398439; display: flex; justify-content: center;width: 100%" 
+                                                       href="${pageContext.request.contextPath}/UsuarioController?action=cambiarEstado&id=<%= usuario.getId()%>&valor=1">
+                                                        <i class="fa fa-check-circle" style="margin-top: 2px; margin-right: 2px"></i> Activar
+                                                    </a>
+                                                    <% } %>
+
                                                 </td>
                                             </tr>
                                             <%

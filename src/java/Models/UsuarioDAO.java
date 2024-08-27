@@ -64,7 +64,8 @@ public class UsuarioDAO {
                         rs.getInt("rol_id"),
                         rs.getString("nombre_rol"),
                         "",
-                        rs.getString("salt")
+                        rs.getString("salt"),
+                        Integer.parseInt(rs.getString("estado"))
                 );
             } else {
                 return null;
@@ -91,7 +92,8 @@ public class UsuarioDAO {
                         rs.getInt("rol_id"),
                         rs.getString("nombre_rol"),
                         "",
-                        rs.getString("salt")
+                        rs.getString("salt"),
+                        Integer.parseInt(rs.getString("estado"))
                 );
             } else {
                 return null;
@@ -157,7 +159,8 @@ public class UsuarioDAO {
                         rs.getString("nombre_rol"),
                         rs.getString("nombreTecnico"),
                         rs.getString("salt"),
-                        rs.getString("razon_social")
+                        rs.getString("razon_social"),
+                        Integer.parseInt(rs.getString("estado"))
                 ));
             }
         }
@@ -185,7 +188,8 @@ public class UsuarioDAO {
                         rs.getInt("rol_id"),
                         rs.getString("nombre_rol"),
                         rs.getString("nombreTecnico"),
-                        ""
+                        "",
+                        Integer.parseInt(rs.getString("estado"))
                 ));
             }
         }
@@ -247,5 +251,15 @@ public class UsuarioDAO {
         }
         return false;
     }
-
+    
+    public void cambiarEstadoUsuario(int idUsuario,int estado) throws SQLException{
+        
+        String sql = "Update usuarios set estado = ? where id = ?";
+        
+        try(PreparedStatement stmt = connection.prepareStatement(sql)){
+            stmt.setInt(1, estado);
+            stmt.setInt(2, idUsuario);
+            stmt.executeUpdate();
+        }
+    }
 }

@@ -32,9 +32,10 @@ public class TicketController extends HttpServlet {
     String error = "error.jsp";
     String listarAdmin = "administracion/listatickets.jsp";
     String listarCliente = "usuario/listatickets.jsp";
+    String listarClienteCerrados = "usuario/listaticketscerrados.jsp";
     String listarAdminAsignados = "administracion/listaticketAsignados.jsp";
     String listarAdminCerrados = "administracion/listaticketCerrados.jsp";
-    String listarTecnicoCerrados = "tecnico/listatickets.jsp";
+    String listarTecnicoCerrados = "tecnico/listaticketscerrados.jsp";
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -78,6 +79,10 @@ public class TicketController extends HttpServlet {
 
             case "cerrarTicket":
                 cerrarTicket(request, response);
+                break;
+
+            case "valorar":
+                valorarAtencion(request, response);
                 break;
 
             default:
@@ -222,7 +227,7 @@ public class TicketController extends HttpServlet {
 
             ticketDAO.actualizarTicket(ticket);
 
-            session.setAttribute("mensajeAlerta", "Se edito el ticket.");
+            session.setAttribute("mensajeAlerta", "Se edito el ticket #"+idTicket);
 
             switch (usuario.getRolId()) {
                 case 1:
@@ -322,5 +327,27 @@ public class TicketController extends HttpServlet {
             request.getRequestDispatcher(error).forward(request, response);
         }
 
+    }
+
+    private void valorarAtencion(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String valoracion = request.getParameter("valoracion");
+        String comentarioUsuario = request.getParameter("comentarioUsuario");
+        int idTicket = Integer.parseInt(request.getParameter("idTicket"));
+
+        try {
+            conexion = Conexion.getConexion();
+            ticketDAO = new TicketDAO(conexion);
+            HttpSession session = request.getSession();
+            
+            ticketDAO.valorizarTicket(idTicket, valoracion, comentarioUsuario);
+    
+            session.setAttribute("mensajeAlerta", "Ticket #" + idTicket + " calificado correctamente.");
+
+            response.sendRedirect(listarClienteCerrados); 
+            
+        } catch (ClassNotFoundException | SQLException ex) {
+            request.setAttribute("mensaje", "Ocurrio un problema: " + ex.getMessage());
+            request.getRequestDispatcher(error).forward(request, response);
+        }
     }
 }

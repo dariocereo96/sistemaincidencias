@@ -20,8 +20,8 @@
     List<Usuario> usuariosTecnicos = new ArrayList<Usuario>();
     Usuario usuario = null;
     List<TipoTicket> tiposTickets = new ArrayList<TipoTicket>();
-
-    // Crear un formato de fecha
+    
+        // Crear un formato de fecha
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     // Obtener la fecha actual
@@ -44,62 +44,61 @@
                 int id = Integer.parseInt(request.getParameter("idticket").toString());
                 Ticket ticket = ticketDAO.obtenerTicketId(id);
 
-                if (ticket != null && ticket.getIdUsuario() == usuario.getId() && (ticket.getEstado().equals("abierto") || ticket.getEstado().equals("en proceso"))) {
+                if (ticket != null && ticket.getIdUsuario() == usuario.getId() && ticket.getEstado().equals("cerrado")) {
                     tickets.add(ticket);
                 }
 
             } else if (request.getParameter("prioridad") != null) {
                 String prioridad = request.getParameter("prioridad");
                 List<Ticket> lista = ticketDAO.obtenerTodosTicketsUsuarioByPrioridad(usuario.getId(), prioridad);
-
-                for (Ticket ticket : lista) {
-                    if (ticket.getEstado().equals("abierto") || ticket.getEstado().equals("en proceso")) {
-                        tickets.add(ticket);
-                    }
-                }
-
-            } else if (request.getParameter("estado") != null) {
-                String estado = request.getParameter("estado");
-                tickets = ticketDAO.obtenerTodosTicketsUsuarioByEstado(usuario.getId(), estado);
-
-            } else if (request.getParameter("fechaInicio") != null && request.getParameter("fechaFinal") != null) {
                 
-                // Formato de la fecha y hora en el string
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-                // Fechas ingresadas por el usuario (convertidas a LocalDate)
-                LocalDate fechaInicio = LocalDate.parse(request.getParameter("fechaInicio"), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                LocalDate fechaFinal = LocalDate.parse(request.getParameter("fechaFinal"), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-
-                // Obtener la lista de tickets
-                List<Ticket> lista = ticketDAO.obtenerTodosTicketsUsuario(usuario.getId());
-
-                // Filtrar la lista usando un bucle for
                 for (Ticket ticket : lista) {
-                    // Parsear la cadena de fecha y hora a LocalDateTime usando el formato completo
-                    LocalDateTime fechaRegistro = LocalDateTime.parse(ticket.getFechaCreacion(), formatter);
-
-                    // Extraer la fecha (sin hora) para la comparación
-                    LocalDate fechaRegistroSoloFecha = fechaRegistro.toLocalDate();
-
-                    // Verificar si la fecha del ticket está dentro del rango
-                    if (!fechaRegistroSoloFecha.isBefore(fechaInicio) && !fechaRegistroSoloFecha.isAfter(fechaFinal) && (ticket.getEstado().equals("en proceso") || ticket.getEstado().equals("abierto"))) {
+                    if (ticket.getEstado().equals("cerrado")){
                         tickets.add(ticket);
                     }
                 }
+                
+            } else if (request.getParameter("fechaInicio") != null && request.getParameter("fechaFinal") != null) {
+            // Formato de la fecha y hora en el string
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-            } else {
+            // Fechas ingresadas por el usuario (convertidas a LocalDate)
+            LocalDate fechaInicio = LocalDate.parse(request.getParameter("fechaInicio"), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            LocalDate fechaFinal = LocalDate.parse(request.getParameter("fechaFinal"), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+            // Obtener la lista de tickets
+            List<Ticket> lista = ticketDAO.obtenerTodosTicketsUsuarioByEstado(usuario.getId(),"cerrado");
+
+            // Filtrar la lista usando un bucle for
+            for (Ticket ticket : lista) {
+                
+                // Parsear la cadena de fecha y hora a LocalDateTime usando el formato completo
+                LocalDateTime fechaRegistro = LocalDateTime.parse(ticket.getFechaCreacion(), formatter);
+
+                // Extraer la fecha (sin hora) para la comparación
+                LocalDate fechaRegistroSoloFecha = fechaRegistro.toLocalDate();
+
+                // Verificar si la fecha del ticket está dentro del rango
+                if (!fechaRegistroSoloFecha.isBefore(fechaInicio) && !fechaRegistroSoloFecha.isAfter(fechaFinal)) {
+                    tickets.add(ticket);
+                }
+            }
+
+        } else {
+                
                 List<Ticket> lista = ticketDAO.obtenerTodosTicketsUsuario(usuario.getId());
-
+                
                 for (Ticket ticket : lista) {
-                    if (ticket.getEstado().equals("abierto") || ticket.getEstado().equals("en proceso")) {
+                    if (ticket.getEstado().equals("cerrado")){
                         tickets.add(ticket);
                     }
                 }
             }
+
         } else {
             session.setAttribute("mensajeError", "Complete la informacion de su perfil.");
             response.sendRedirect("editarPerfil.jsp");
+            return;
         }
 
     }
@@ -234,7 +233,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <h1 class="page-header" style="font-size: 24px">
-                                Tickets creados
+                                Tickets cerrados
                             </h1>
                             <% if (mensajeAlerta != null) {%>
                             <div class="alert alert-success">
@@ -243,14 +242,13 @@
                             <% } %>
                             <div class="panel panel-default">
                                 <div class="panel-body">
-                                    <a href="${pageContext.request.contextPath}/usuario/crearticket.jsp" class="btn btn-primary"><i class="fa fa-plus-circle" style="margin-right: 6px"></i>Registrar ticket</a>
-                                    <a href="listatickets.jsp" class="btn btn-success" style="margin-left: 10px"><i class="fa fa-file" style="margin-right: 4px"></i>Listar Todo</a>
-                                    <div style="display: flex;margin: 30px 0px">
+                                    <a href="listaticketscerrados.jsp" class="btn btn-success" style="margin-left: 10px"><i class="fa fa-file" style="margin-right: 4px"></i>Listar Todo</a>
+                                    <div style="display: flex;margin: 20px 0px">
 
                                         <form style="margin-right: 20px">
                                             <div style="display: flex">
                                                 <label style="margin-right: 10px;margin-top: 6px">ID</label>
-                                                <input oninput="validarNumeros(event)" name="idticket" style="margin-right: 10px;width: 170px" class="form-control" required type="text"/>
+                                                <input oninput="validarNumeros(event)" name="idticket" style="margin-right: 10px;width: 100px" class="form-control" required type="text"/>
                                                 <button class="btn btn-warning" style="color: #000;font-weight: bold">Buscar</button>
                                             </div>
                                         </form>
@@ -270,30 +268,19 @@
 
                                         <form>
                                             <div style="display: flex">
-                                                <label style="margin-right: 10px;margin-top: 6px">ESTADO</label>
-                                                <select style="margin-right: 10px;width: 170px" class="form-control" id="prioridad" name="estado" required>
-                                                    <option value="abierto">ABIERTO</option>
-                                                    <option value="en proceso">EN PROCESO</option>
-                                                </select>
-                                                <button class="btn btn-warning" style="color: #000;font-weight: bold">Buscar</button>
-                                            </div>
-                                        </form>
+                                                <div style="display: flex; margin-right: 10px">
+                                                    <label style="margin-right: 10px; margin-top: 6px">INICIO</label>
+                                                    <input type="date" max="<%= today%>" required="" class="form-control" name="fechaInicio" value="<%= today%>"/>
+                                                </div>
 
-                                    </div>
-                                    
-                                    <div style="margin-bottom: 20px;display: flex">
-                                        <form style="display: flex">
-                                            <div style="display: flex; margin-right: 10px">
-                                                <label style="margin-right: 10px; margin-top: 6px">INICIO</label>
-                                                <input type="date" max="<%= today%>" required="" class="form-control" name="fechaInicio" value="<%= today%>"/>
+                                                <div style="display: flex; margin-right: 10px">
+                                                    <label style="margin-right: 10px; margin-top: 6px">FINAL</label>
+                                                    <input type="date" max="<%= today%>" required="" class="form-control" name="fechaFinal" value="<%= today%>"/>
+                                                </div>
                                             </div>
-
-                                            <div style="display: flex; margin-right: 10px">
-                                                <label style="margin-right: 10px; margin-top: 6px">FINAL</label>
-                                                <input type="date" max="<%= today%>" required="" class="form-control" name="fechaFinal" value="<%= today%>"/>
+                                            <div style="width: 100%;margin-top: 10px;text-align: end">
+                                                <button class="btn btn-warning" style="color: #000; font-weight: bold">Buscar</button>
                                             </div>
-
-                                            <button class="btn btn-warning" style="color: #000; font-weight: bold">Buscar</button>
                                         </form>
                                     </div>
 
@@ -341,15 +328,9 @@
                                                     <td><%= (ticket.getAsignadoA() > 0) ? ticket.getNombreTecnico() : "SIN ASIGNAR"%></td>
                                                     <td>
                                                         <div style="display: flex">
-                                                            <a href='#' class="btn-custom" style="background-color: #398439;margin-right: 2px;display: flex;justify-content: center" onclick="openModal('<%=ticket.getTitulo()%>', '<%=ticket.getDescripcion()%>', <%=ticket.getId()%>, '<%=ticket.getFechaCreacion()%>', '<%=ticket.getRazonSocial()%>', '<%=ticket.getLugar()%>', '<%=ticket.getEncargado()%>', '<%=ticket.getSubTipoTicket()%>', '<%=ticket.getDireccionEmpresa()%>', '<%=ticket.getTelefonoEmpresa()%> ')"><i class="fa fa-eye" style="margin-top: 2px;margin-right: 2px"></i>Ver</a>
-
-                                                            <% if (!ticket.getEstado().equals("cerrado")) {%>
-                                                            <a class="btn-custom" style="background-color: #0075b0;margin-right: 2px;display: flex;justify-content: center" href="${pageContext.request.contextPath}/usuario/editarticket.jsp?id=<%= ticket.getId()%>"><i class="fa fa-edit" style="margin-top: 2px;margin-right: 2px"></i>Editar</a>
-                                                            <a class="btn-custom" style="background-color: #c12e2a;display: flex;justify-content:center" onclick="return confirm('¿Estás seguro de que deseas descartar eL ticket #<%=ticket.getId()%> ?')" href='${pageContext.request.contextPath}/TicketController?action=eliminar&id=<%= ticket.getId()%>'><i class="fa fa-minus-circle" style="margin-top: 2px;margin-right: 2px"></i>Descartar</a>
-                                                            <%} else {%>
-                                                            <button class="btn-custom" style="background-color: #CFCECE;margin-right: 2px;border: none;display: flex;justify-content: center"><i class="fa fa-edit" style="margin-top: 2px;margin-right: 2px"></i>Editar</button>
-                                                            <button class="btn-custom" style="background-color: #CFCECE;margin-right: 2px;border: none;display: flex;justify-content: center"><i class="fa fa-minus-circle" style="margin-top: 2px;margin-right: 2px"></i>Descartar</button>
-                                                            <%}%>
+                                                            <a href='#' class="btn-custom" style="background-color: #398439;margin-right: 2px;display: flex;justify-content: center" 
+                                                               onclick="openModal('<%=ticket.getTitulo()%>', '<%=ticket.getDescripcion()%>', <%=ticket.getId()%>, '<%=ticket.getFechaCreacion()%>', '<%=ticket.getRazonSocial()%>', '<%=ticket.getLugar()%>', '<%=ticket.getEncargado()%>', '<%=ticket.getSubTipoTicket()%>', '<%=ticket.getDireccionEmpresa()%>', '<%=ticket.getTelefonoEmpresa()%> ', '<%=ticket.getComentario() != null ? ticket.getComentario() : ""%>', '<%=ticket.getValoracion() != null ? ticket.getValoracion().trim() : "excelente"%>','<%=ticket.getComentarioUsuario() != null ? ticket.getComentarioUsuario(): ""%>')"><i class="fa fa-eye" style="margin-top: 2px;margin-right: 2px"></i>Ver</a>
+                                                            <a target="_blank" href="${pageContext.request.contextPath}/pdf/ticketpdf.jsp?id=<%=ticket.getId()%>" class="btn-custom" style="background-color: #c12e2a;display: flex;justify-content: center"><i class="fa fa-file" style="margin-right: 4px;margin-top: 2px"></i> PDF</a>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -371,12 +352,13 @@
         <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form>
+                    <form action="${pageContext.request.contextPath}/TicketController?action=valorar" method="post">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                             <h4 class="modal-title" id="myModalLabel">Detalles del Ticket</h4>
                         </div>
                         <div class="modal-body">
+                            <input type="hidden" name="idTicket" id="idTicket" value="-1">
                             <div class="row" style="margin-bottom: 15px">
                                 <div class="col-md-6">
                                     <label>Asunto</label>
@@ -430,8 +412,36 @@
                                     <textarea class="form-control" id="descripcion" name="descripcion" rows="5" readonly="true"></textarea>
                                 </div>
                             </div>
+
+                            <div class="row" style="margin-bottom: 15px">
+                                <div class="col-md-12">
+                                    <label>Comentario del Tecnico</label>
+                                    <textarea class="form-control" id="comentario" name="comentario" rows="5" readonly="true"></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="row" style="margin-bottom: 15px">
+                                <div class="col-md-12">
+                                    <label for="valoracion">Valora la atención:</label>
+                                    <select class="form-control" name="valoracion" id="valoracion">
+                                        <option value="excelente">Excelente</option>
+                                        <option value="buena">Buena</option>
+                                        <option value="regular">Regular</option>
+                                        <option value="mala">Mala</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="row" style="margin-bottom: 15px">
+                                <div class="col-md-12">
+                                    <label>Comentario del Usuario</label>
+                                    <textarea class="form-control" placeholder="Describa la calidad de la atencion" id="comentarioUsuario" name="comentarioUsuario" rows="5" required=""></textarea>
+                                </div>
+                            </div>
+
                         </div>
                         <div class="modal-footer">
+                            <button type="submit" class="btn btn-success">Guardar</button>
                             <button type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
                         </div>
                     </form>
@@ -457,41 +467,45 @@
         <script src="${pageContext.request.contextPath}/assets/js/custom-scripts.js"></script>
 
         <script>
-            function openModal(titulo, descripcion, idTicket, fecha, empresa, lugar, resposable, tipo, direccion, telefono) {
-                // Abrir el modal
-                $('#titulo').val(titulo);
-                $('#fecha').val(fecha);
-                $('#empresa').val(empresa);
-                $('#lugar').val(lugar);
-                $('#responsable').val(resposable);
-                $('#tipoIncidencia').val(tipo);
-                $('#descripcion').val(descripcion);
-                $('#direccion').val(direccion);
-                $('#telefono').val(telefono);
-                $('#idTicket').val(idTicket);
-                $('#myModalLabel').text('Detalles del Ticket #' + idTicket);
-                $('#myModal').modal('show');
-            }
-
-            function guardar() {
-                document.getElementById('formulario').submit();
-            }
-
-            function validarNumeros(event) {
-                const input = event.target;
-                const value = input.value;
-
-                // Expresión regular para remover cualquier carácter que no sea un número
-                input.value = value.replace(/\D/g, '');
-
-                // Opcional: Mostrar mensaje de error si se desea informar al usuario
-                const errorMessage = document.getElementById('error-message');
-                if (input.value !== value) {
-                    errorMessage.textContent = 'El campo solo debe contener números.';
-                } else {
-                    errorMessage.textContent = '';
+                function openModal(titulo, descripcion, idTicket, fecha, empresa, lugar, resposable, tipo, direccion, telefono, comentario,valoracion,comentario_usuario) {
+                    // Abrir el modal
+                    $('#titulo').val(titulo);
+                    $('#fecha').val(fecha);
+                    $('#empresa').val(empresa);
+                    $('#lugar').val(lugar);
+                    $('#responsable').val(resposable);
+                    $('#tipoIncidencia').val(tipo);
+                    $('#descripcion').val(descripcion);
+                    $('#direccion').val(direccion);
+                    $('#telefono').val(telefono);
+                    $('#comentario').val(comentario);
+                    $('#idTicket').val(idTicket);
+                    $('#comentarioUsuario').val(comentario_usuario);
+                    $('#valoracion').val(valoracion);
+                    $('#myModalLabel').text('Detalles del Ticket #' + idTicket);
+                    $('#myModal').modal('show');
                 }
-            }
+
+                function guardar() {
+                    document.getElementById('formulario').submit();
+                }
+
+                function validarNumeros(event) {
+                    const input = event.target;
+                    const value = input.value;
+
+                    // Expresión regular para remover cualquier carácter que no sea un número
+                    input.value = value.replace(/\D/g, '');
+
+                    // Opcional: Mostrar mensaje de error si se desea informar al usuario
+                    const errorMessage = document.getElementById('error-message');
+                    if (input.value !== value) {
+                        errorMessage.textContent = 'El campo solo debe contener números.';
+                    } else {
+                        errorMessage.textContent = '';
+                    }
+                }
+
         </script>
     </body>
 </html>

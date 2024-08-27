@@ -10,6 +10,7 @@
     if (request.getSession().getAttribute("usuario") == null) {
         System.out.println("No hay sesion iniciada");
         response.sendRedirect(request.getContextPath() + "/auth/");
+        return;
     } else {
         EmpresaDAO empresaDAO = new EmpresaDAO(Conexion.getConexion());
         usuario = (Usuario) request.getSession().getAttribute("usuario");
@@ -94,7 +95,10 @@
                                     <a href="${pageContext.request.contextPath}/usuario/crearticket.jsp"><i class="fa fa-plus fa-fw"></i>Nuevo ticket</a>
                                 </li>
                                 <li>
-                                    <a href="${pageContext.request.contextPath}/usuario/listatickets.jsp"><i class="fa fa-ticket"></i>Mis tickets creados</a>
+                                    <a href="${pageContext.request.contextPath}/usuario/listatickets.jsp"><i class="fa fa-ticket"></i>Tickets creados</a>
+                                </li>
+                                <li>
+                                    <a href="${pageContext.request.contextPath}/usuario/listaticketscerrados.jsp"><i class="fa fa-ticket"></i>Tickets cerrados</a>
                                 </li>
                             </ul>
                         </li>

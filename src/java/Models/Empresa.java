@@ -21,12 +21,13 @@ public class Empresa {
     private String ruc;
     private int usuarioId;
     private String username;
+    private int estado;
 
     public Empresa() {
     }
 
     // Constructor
-    public Empresa(int id, String razonSocial, String direccion, String telefono, String correo, String ruc, int usuarioId) {
+    public Empresa(int id, String razonSocial, String direccion, String telefono, String correo, String ruc, int usuarioId, int estado) {
         this.id = id;
         this.razonSocial = razonSocial;
         this.direccion = direccion;
@@ -34,10 +35,11 @@ public class Empresa {
         this.correo = correo;
         this.ruc = ruc;
         this.usuarioId = usuarioId;
+        this.estado = estado;
     }
 
     // Constructor
-    public Empresa(int id, String razonSocial, String direccion, String telefono, String correo, String ruc, int usuarioId, String username) {
+    public Empresa(int id, String razonSocial, String direccion, String telefono, String correo, String ruc, int usuarioId, String username, int estado) {
         this.id = id;
         this.razonSocial = razonSocial;
         this.direccion = direccion;
@@ -46,6 +48,7 @@ public class Empresa {
         this.ruc = ruc;
         this.usuarioId = usuarioId;
         this.username = username;
+        this.estado = estado;
     }
 
     public int getId() {
@@ -112,4 +115,12 @@ public class Empresa {
         this.username = username;
     }
 
-}
+    public int getEstado() {
+        return estado;
+    }
+
+    public void setEstado(int estado) {
+        this.estado = estado;
+    }
+    
+}   

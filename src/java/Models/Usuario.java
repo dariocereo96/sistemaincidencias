@@ -20,6 +20,7 @@ public class Usuario {
     private String nombreCompletoUsuario;
     private String salt;
     private String nombreEmpresa;
+    private int estado;
 
     public Usuario() {
 
@@ -32,7 +33,8 @@ public class Usuario {
             int rolId,
             String tipoUsuario,
             String nombreCompletoUsuario,
-            String salt) {
+            String salt,
+            int estado) {
 
         this.id = id;
         this.nombre = nombre;
@@ -42,6 +44,7 @@ public class Usuario {
         this.tipoUsuario = tipoUsuario;
         this.nombreCompletoUsuario = nombreCompletoUsuario;
         this.salt = salt;
+        this.estado = estado;
     }
 
     public Usuario(int id,
@@ -52,7 +55,8 @@ public class Usuario {
             String tipoUsuario,
             String nombreCompletoUsuario,
             String salt,
-            String nombreEmpresa) {
+            String nombreEmpresa,
+            int estado) {
         this.id = id;
         this.nombre = nombre;
         this.correoElectronico = correoElectronico;
@@ -62,6 +66,7 @@ public class Usuario {
         this.nombreCompletoUsuario = nombreCompletoUsuario;
         this.salt = salt;
         this.nombreEmpresa = nombreEmpresa;
+        this.estado = estado;
     }
 
     public int getId() {
@@ -138,6 +143,14 @@ public class Usuario {
 
     public void setNombreEmpresa(String nombreEmpresa) {
         this.nombreEmpresa = nombreEmpresa;
+    }
+
+    public int getEstado() {
+        return estado;
+    }
+
+    public void setEstado(int estado) {
+        this.estado = estado;
     }
 
     

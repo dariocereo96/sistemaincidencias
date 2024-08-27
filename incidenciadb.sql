@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 14-08-2024 a las 18:31:39
+-- Tiempo de generación: 27-08-2024 a las 05:43:13
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -36,16 +36,17 @@ CREATE TABLE `empresas` (
   `telefono` varchar(10) NOT NULL,
   `correo` varchar(100) NOT NULL,
   `ruc` varchar(13) NOT NULL,
-  `usuario_id` int(11) DEFAULT NULL
+  `usuario_id` int(11) DEFAULT NULL,
+  `estado` int(11) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `empresas`
 --
 
-INSERT INTO `empresas` (`id`, `razon_social`, `direccion`, `telefono`, `correo`, `ruc`, `usuario_id`) VALUES
-(24, 'AGRICOLA S.A', 'PUEBLOVIEJO', '0989991105', 'agricolasa@gmail.com', '1204030403111', 69),
-(25, 'COMERCIAL VILLACRES', 'QUITO, AV 10', '0948438434', 'comercialvillacres@gmail.com', '2204304343443', 73);
+INSERT INTO `empresas` (`id`, `razon_social`, `direccion`, `telefono`, `correo`, `ruc`, `usuario_id`, `estado`) VALUES
+(24, 'AGRICOLA S.A', 'PUEBLOVIEJO', '0989991105', 'agricolasa@gmail.com', '1204030403111', 69, 1),
+(25, 'COMERCIAL VILLACRES', 'QUITO, AV 10', '0948438434', 'comercialvillacres@gmail.com', '2204304343443', 73, 1);
 
 -- --------------------------------------------------------
 
@@ -156,16 +157,17 @@ CREATE TABLE `tecnicos` (
   `correo` varchar(100) NOT NULL,
   `direccion` varchar(100) NOT NULL,
   `telefono` varchar(10) NOT NULL,
-  `usuario_id` int(11) DEFAULT NULL
+  `usuario_id` int(11) DEFAULT NULL,
+  `estado` int(11) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `tecnicos`
 --
 
-INSERT INTO `tecnicos` (`id`, `cedula`, `nombre`, `apellido`, `correo`, `direccion`, `telefono`, `usuario_id`) VALUES
-(16, '1205487955', 'PABLO', 'GUALANCAAY', 'pablodariocerezo@gmail.com', 'Vinces', '0989991105', 70),
-(17, '1202591122', 'JUAN', 'GUAMAN', 'juan@gmail.com', 'QUITO, AV CALDERON', '0989995110', 71);
+INSERT INTO `tecnicos` (`id`, `cedula`, `nombre`, `apellido`, `correo`, `direccion`, `telefono`, `usuario_id`, `estado`) VALUES
+(16, '1205487953', 'PABLO', 'GUALANCANAY', 'pablodariocerezo@gmail.com', 'Vinces', '0989991105', 70, 1),
+(17, '1202591122', 'JUAN', 'GUAMAN', 'juan@gmail.com', 'QUITO, AV CALDERON', '0989995110', 71, 1);
 
 -- --------------------------------------------------------
 
@@ -187,17 +189,26 @@ CREATE TABLE `tickets` (
   `lugar` varchar(100) DEFAULT NULL,
   `encargado` varchar(100) DEFAULT NULL,
   `subtipo_id` int(11) DEFAULT NULL,
-  `comentario` varchar(255) DEFAULT NULL
+  `comentario` varchar(255) DEFAULT NULL,
+  `valoracion` varchar(20) DEFAULT NULL,
+  `comentario_usuario` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `tickets`
 --
 
-INSERT INTO `tickets` (`id`, `titulo`, `descripcion`, `tipo_id`, `prioridad`, `estado`, `fecha_creacion`, `fecha_resolucion`, `asignado_a`, `usuario_id`, `lugar`, `encargado`, `subtipo_id`, `comentario`) VALUES
-(76, 'no se puede conectar al internet', 'sdsdsdsdsdsd', 3, 'alta', 'cerrado', '2024-08-13 23:59:14', '2024-08-14 10:01:52', 71, 69, 'area de ventas', 'Ing Marlos Suarez - Tecnologo', 22, 'se reviso la red y se verifico que hay un problema en un router y se lo cambio'),
-(77, 'falla en windows', 'no inicia el windows se queda congelado', 2, 'critica', 'cerrado', '2024-08-14 10:05:12', '2024-08-14 10:07:45', 71, 73, 'area de ventas', 'ing carlos - vendedor', 12, 'se reviso el equipo y se comenzo a reinstalar el wiwdosw'),
-(78, 'formateo de computador', 'necesito que se formatee un equipo por que esta muy lento', 4, 'media', 'cerrado', '2024-08-14 10:10:05', '2024-08-14 10:11:38', 70, 73, 'sin expecificar', 'Ing Marlos Suarez - Tecnologo', 40, 'se efectuo el formateo del equipo');
+INSERT INTO `tickets` (`id`, `titulo`, `descripcion`, `tipo_id`, `prioridad`, `estado`, `fecha_creacion`, `fecha_resolucion`, `asignado_a`, `usuario_id`, `lugar`, `encargado`, `subtipo_id`, `comentario`, `valoracion`, `comentario_usuario`) VALUES
+(76, 'no se puede conectar al internet', 'sdsdsdsdsdsd', 3, 'alta', 'cerrado', '2024-08-13 23:59:14', '2024-08-14 10:01:52', 71, 69, 'area de ventas', 'Ing Marlos Suarez - Tecnologo', 22, 'se reviso la red y se verifico que hay un problema en un router y se lo cambio', 'excelente', 'excelente servicio '),
+(77, 'falla en windows', 'no inicia el windows se queda congelado', 2, 'critica', 'cerrado', '2024-08-14 10:05:12', '2024-08-14 10:07:45', 71, 73, 'area de ventas', 'ing carlos - vendedor', 12, 'se reviso el equipo y se comenzo a reinstalar el wiwdosw', 'buena', 'MUY EFECTIVO EL TECNICO ASIGNADO A MI TICKET'),
+(78, 'formateo de computador', 'necesito que se formatee un equipo por que esta muy lento', 4, 'media', 'cerrado', '2024-08-14 10:10:05', '2024-08-14 10:11:38', 70, 73, 'sin expecificar', 'Ing Marlos Suarez - Tecnologo', 40, 'se efectuo el formateo del equipo', NULL, NULL),
+(79, 'no se puede conectar al internet', 'Se necesita aumentar la capacida de almacenamiento de mi pc', 5, 'alta', 'cerrado', '2024-08-24 09:43:00', '2024-08-26 10:09:11', 70, 69, 'area de ventas', 'ING. EDUARDO NUÃEZ - ASISTENTE DE SISTEMAS', 43, 'se aumento la ram', 'excelente', 'QUEDO MAS RAPIDO EL EQUIPO SIGAN ASI'),
+(80, 'FALLO DE PC', 'NO ENCIENDE MI PC', 1, 'alta', 'cerrado', '2024-08-26 09:45:21', '2024-08-26 09:46:46', 70, 69, 'AREA DE RECURSOS HUMANDOS', 'ASISTENTE DE SOPORTE', 51, 'EL PC PRESENTABA UN FALLO EN LA FUENTE DE PODER QUE NO PERMITA QUE EL EQUIPO ENCIENDA', 'regular', 'ME SOLUCIONARON EL PROBLEMA RAPIDAMENTE 2'),
+(81, 'no se puede conectar al internet', 'no se puede acceder a la internet', 3, 'alta', 'cerrado', '2024-08-26 10:20:56', '2024-08-26 13:40:05', 70, 73, 'sin expecificar', 'ing. alfonso montalvo', 24, 'se reincio el router', NULL, NULL),
+(82, 'no se puede conectar al internet', 'no se conecta a la red', 1, 'media', 'en proceso', '2024-08-26 11:54:26', NULL, 71, 69, 'area de recursos humanos', 'Ing. Alex Franco - Asistente de Soporte', 10, NULL, NULL, NULL),
+(83, 'falla en windows', 'no se inicia el windows', 2, 'critica', 'abierto', '2024-08-26 13:52:49', NULL, NULL, 69, 'area de recursos humanos', 'juan guaman - tecnico de area', 12, NULL, NULL, NULL),
+(84, 'FALLO EN MOUSER', 'NO SE MUEVE MI MOUSE', 1, 'media', 'en proceso', '2024-08-26 15:47:09', NULL, 70, 69, 'area de ventas', 'ing. alfonso montalvo', 9, NULL, NULL, NULL),
+(85, 'FALLO DE PC', 'No enciende mi pc', 2, 'critica', 'en proceso', '2024-08-26 22:17:19', NULL, 71, 69, 'area de recursos humanos', 'ING. EDUARDO NUÃÂÃÂÃÂÃÂEZ - ASISTENTE DE SISTEMAS', 16, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -233,22 +244,23 @@ CREATE TABLE `usuarios` (
   `correo_electronico` varchar(100) NOT NULL,
   `contrasena` varchar(255) NOT NULL,
   `rol_id` int(11) DEFAULT NULL,
-  `salt` varchar(255) NOT NULL
+  `salt` varchar(255) NOT NULL,
+  `estado` int(11) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `usuarios`
 --
 
-INSERT INTO `usuarios` (`id`, `nombre`, `correo_electronico`, `contrasena`, `rol_id`, `salt`) VALUES
-(53, 'superadministrador', 'superadministrador@softcorp.com', '21BDg7Cvyh3WDQgxoolzZA==', 4, 'aRNqLKt0jnFRiYLVdH8y+g=='),
-(55, 'digitador', 'digitador@softcorp.com', 'amTq16nlX9FsTK+VsdT6xw==', 5, 'jmVORxiWZPloI+LPxNrpkA=='),
-(65, 'administrador', 'admininstrador@softcorp.com', 'ENg5LMT7pczQI8ipoAgBjQ==', 3, '28NFcFAZ5nYBlL+DMWDNdQ=='),
-(69, 'agricola_sa', 'agricolasa@gmail.com', 'd5rLzKCp3XH/JZFy8BL1MQ==', 1, 'fCfcFNq+S146/05iQMhA/w=='),
-(70, 'pablocerezotecnico1', 'pablocerezo@softcorp.com', 'Ius/LXqboYqClJARONQMfw==', 2, 'w/Ijwv+goSzx2Hs2yRCzng=='),
-(71, 'juanguamantecnico2', 'juanguaman@softcorp.com', 'JTPCXpMgJarOhFKyBE7HEw==', 2, 'rGe5ZVaX6xfV6txwi9gv/g=='),
-(72, 'digitador2', 'digitador2@softcorp.com', 'xXHOEasjYmUUO7opjSfwFA==', 5, '6wljYNZzS30fxVy3gQMRPA=='),
-(73, 'comercialvillacres', 'comercialvillacres@gmail.com', '5kWIMAqb8+E6Qq3ycvx5ww==', 1, 'SMotcWsxn8sB0t7K5a2j0w==');
+INSERT INTO `usuarios` (`id`, `nombre`, `correo_electronico`, `contrasena`, `rol_id`, `salt`, `estado`) VALUES
+(53, 'superadministrador', 'superadministrador@softcorp.com', '21BDg7Cvyh3WDQgxoolzZA==', 4, 'aRNqLKt0jnFRiYLVdH8y+g==', 1),
+(55, 'digitador', 'digitador@softcorp.com', 'amTq16nlX9FsTK+VsdT6xw==', 5, 'jmVORxiWZPloI+LPxNrpkA==', 1),
+(65, 'administrador', 'admininstrador@softcorp.com', 'frHjzNjbo6jVxZXzmKgIlQ==', 3, 'd/srZDvsRMBh5J4bOhFTDA==', 1),
+(69, 'agricola_sa', 'agricolasa@gmail.com', 'd5rLzKCp3XH/JZFy8BL1MQ==', 1, 'fCfcFNq+S146/05iQMhA/w==', 1),
+(70, 'pablocerezotecnico1', 'pablocerezo@softcorp.com', 'Ius/LXqboYqClJARONQMfw==', 2, 'w/Ijwv+goSzx2Hs2yRCzng==', 1),
+(71, 'juanguamantecnico2', 'juanguaman@softcorp.com', 'JTPCXpMgJarOhFKyBE7HEw==', 2, 'rGe5ZVaX6xfV6txwi9gv/g==', 1),
+(72, 'digitador2', 'digitador2@softcorp.com', 'xXHOEasjYmUUO7opjSfwFA==', 5, '6wljYNZzS30fxVy3gQMRPA==', 1),
+(73, 'comercialvillacres', 'comercialvillacres@gmail.com', '5kWIMAqb8+E6Qq3ycvx5ww==', 1, 'SMotcWsxn8sB0t7K5a2j0w==', 1);
 
 --
 -- Índices para tablas volcadas
@@ -339,7 +351,7 @@ ALTER TABLE `tecnicos`
 -- AUTO_INCREMENT de la tabla `tickets`
 --
 ALTER TABLE `tickets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=79;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=86;
 
 --
 -- AUTO_INCREMENT de la tabla `tipoticket`
@@ -351,7 +363,7 @@ ALTER TABLE `tipoticket`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=74;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=75;
 
 --
 -- Restricciones para tablas volcadas

@@ -17,6 +17,7 @@
     if (request.getSession().getAttribute("usuario") == null) {
         System.out.println("No hay sesion iniciada");
         response.sendRedirect(request.getContextPath() + "/auth/");
+        return;
     } else {
         EmpresaDAO empresaDAO = new EmpresaDAO(Conexion.getConexion());
         listaEmpresas = empresaDAO.obtenerEmpresasNoAsignadas();

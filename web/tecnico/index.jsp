@@ -16,6 +16,7 @@
     if (request.getSession().getAttribute("usuario") == null) {
         System.out.println("No hay sesion iniciada");
         response.sendRedirect(request.getContextPath() + "/auth/");
+        return;
     } else {
         usuario = (Usuario) request.getSession().getAttribute("usuario");
 
@@ -102,6 +103,9 @@
                                 <li>
                                     <a href="${pageContext.request.contextPath}/tecnico/listatickets.jsp"><i class="fa fa-ticket"></i>Tickets asignados</a>
                                 </li>
+                                <li>
+                                    <a href="${pageContext.request.contextPath}/tecnico/listaticketscerrados.jsp"><i class="fa fa-ticket"></i>Tickets cerrados</a>
+                                </li>
                             </ul>
                         </li>
                     </ul>
@@ -129,7 +133,7 @@
                                         </div> 
 
                                         <div class="col-md-4">
-                                            <a href="listatickets.jsp?estado=en proceso">
+                                            <a href="listatickets.jsp">
                                                 <div  style="background-color: #0075b0;text-align: center;color: #fff;border-radius: 10px">
                                                     <p style="font-size: 12px;font-weight: bold;">TICKETS ASIGNADOS</p>
                                                     <i class="fa fa-ticket" style="font-size: 40px"></i>
@@ -139,7 +143,7 @@
                                         </div>
 
                                         <div class="col-md-4">
-                                            <a href="listatickets.jsp?estado=cerrado">
+                                            <a href="listaticketscerrados.jsp">
                                                 <div style="background-color: #3c763d;text-align: center;color: #fff;border-radius: 10px">
                                                     <p style="font-size: 12px;font-weight: bold;">TICKETS CERRADOS</p>
                                                     <i class="fa fa-ticket" style="font-size: 40px"></i>
